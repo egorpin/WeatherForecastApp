@@ -14,10 +14,12 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
-    
+    void mouseReleaseEvent(QMouseEvent *event) override;
+
 private:
     void setupTitleBar();
-    
+    QPoint m_dragPos;
+
     QPoint dragPosition;
     QWidget *titleBar;
     QLabel *titleIcon;

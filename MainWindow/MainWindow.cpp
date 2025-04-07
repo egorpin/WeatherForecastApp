@@ -1,4 +1,6 @@
 #include "MainWindow.hpp"
+#include "style.qcss"
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QStyle>
@@ -8,41 +10,7 @@
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 #include <QMouseEvent>
-
-// Стили для кнопок
-const QString windowButtonStyle = R"(
-    QToolButton {
-        border: none;
-        background: transparent;
-        padding: 4px;
-        border-radius: 8px;
-        opacity: 0.9;
-    }
-    QToolButton:hover {
-        background: rgba(255, 255, 255, 0.2);
-        opacity: 1.0;
-    }
-    QToolButton:pressed {
-        background: rgba(255, 255, 255, 0.3);
-    }
-)";
-
-const QString closeButtonStyle = R"(
-    QToolButton {
-        border: none;
-        background: transparent;
-        padding: 4px;
-        border-radius: 8px;
-        opacity: 0.9;
-    }
-    QToolButton:hover {
-        background: #e81123;
-        opacity: 1.0;
-    }
-    QToolButton:pressed {
-        background: #f1707a;
-    }
-)";
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget *parent) 
     : QMainWindow(parent)
@@ -96,7 +64,7 @@ void MainWindow::setupTitleBar()
     
     // Кнопка сворачивания
     minimizeButton = new QToolButton(titleBar);
-    minimizeButton->setIcon(QIcon(":MainWindow/icons/minimize.svg"));
+    minimizeButton->setIcon(QIcon(":MainWindow/icons/minimize.png"));
     minimizeButton->setIconSize(QSize(16, 16));
     minimizeButton->setStyleSheet(windowButtonStyle);
     minimizeButton->setToolTip("Свернуть");
@@ -104,25 +72,25 @@ void MainWindow::setupTitleBar()
     
     // Кнопка разворачивания/восстановления
     maximizeButton = new QToolButton(titleBar);
-    maximizeButton->setIcon(QIcon(":MainWindow/icons/maximize.svg"));
+    maximizeButton->setIcon(QIcon(":MainWindow/icons/maximize.png"));
     maximizeButton->setIconSize(QSize(16, 16));
     maximizeButton->setStyleSheet(windowButtonStyle);
     maximizeButton->setToolTip("Развернуть");
     connect(maximizeButton, &QToolButton::clicked, [this]() {
         if (isMaximized()) {
             showNormal();
-            maximizeButton->setIcon(QIcon(":MainWindow/icons/maximize.svg"));
+            maximizeButton->setIcon(QIcon(":MainWindow/icons/maximize.png"));
             maximizeButton->setToolTip("Развернуть");
         } else {
             showMaximized();
-            maximizeButton->setIcon(QIcon(":MainWindow/icons/restore.svg"));
+            maximizeButton->setIcon(QIcon(":MainWindow/icons/restore.png"));
             maximizeButton->setToolTip("Восстановить");
         }
     });
     
     // Кнопка закрытия
     closeButton = new QToolButton(titleBar);
-    closeButton->setIcon(QIcon(":MainWindow/icons/close.svg"));
+    closeButton->setIcon(QIcon(":MainWindow/icons/close.png"));
     closeButton->setIconSize(QSize(16, 16));
     closeButton->setStyleSheet(closeButtonStyle);
     closeButton->setToolTip("Закрыть");
@@ -150,20 +118,42 @@ void MainWindow::setupTitleBar()
     titleLayout->addWidget(closeButton);
 }
 
-void MainWindow::mousePressEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton && titleBar->geometry().contains(event->position().toPoint())) {
-        dragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
+void MainWindow::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton && 
+        titleBar->geometry().contains(event->pos()) && 
+        !isMaximized()) 
+    {
+        // Фиксируем точку захвата относительно окна
+        m_dragPos = event->pos();
         event->accept();
     }
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
-    if (event->buttons() & Qt::LeftButton) {
-        move(event->globalPosition().toPoint() - dragPosition);
+    if ((event->buttons() & Qt::LeftButton) && 
+        !m_dragPos.isNull() && 
+        !isMaximized())
+    {
+        // Вычисляем новую позицию окна
+        QPoint newPos = event->globalPos() - m_dragPos;
+        
+        // Если окно частично выходит за экран - корректируем позицию
+        QRect screen = QApplication::primaryScreen()->availableGeometry();
+        if (newPos.x() < screen.left()) newPos.setX(screen.left());
+        if (newPos.y() < screen.top()) newPos.setY(screen.top());
+        if (newPos.x() > screen.right() - width()) newPos.setX(screen.right() - width());
+        if (newPos.y() > screen.bottom() - height()) newPos.setY(screen.bottom() - height());
+        
+        move(newPos);
         event->accept();
     }
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+    m_dragPos = QPoint(); // Сбрасываем позицию при отпускании кнопки
 }
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)

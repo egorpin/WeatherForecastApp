@@ -2,5 +2,9 @@
 <qresource prefix="/">
     <file alias="icons/app_icon.png">icons/app_icon.png</file>
     <file alias="icons/search.png">icons/search.png</file>
+    <file alias="icons/minimize.png">icons/minimize.png</file>
+    <file alias="icons/restore.png">icons/restore.png</file>
+    <file alias="icons/close.png">icons/close.png</file>
+    <file alias="icons/maximize.png">icons/maximize.png</file>    
 </qresource>
 </RCC>

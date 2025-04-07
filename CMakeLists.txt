@@ -24,6 +24,10 @@ qt_add_resources(WeatherApp "MainWindow/resourses.qrc"
     FILES
         MainWindow/icons/app_icon.png
         MainWindow/icons/search.png
+        MainWindow/icons/minimize.png
+        MainWindow/icons/maximize.png
+        MainWindow/icons/close.png
+        MainWindow/icons/restore.png
 )
 find_package(Qt6 REQUIRED COMPONENTS Gui Widgets Network)
 target_link_libraries(WeatherApp
