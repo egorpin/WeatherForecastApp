@@ -13,6 +13,8 @@
 #include <QTimer>
 #include <QComboBox>
 
+#include <fstream>
+
 class WeatherApp : public QMainWindow {
 public:
     WeatherApp() : QMainWindow() {
@@ -38,7 +40,14 @@ private slots:
 
         if (city.isEmpty()) return;
 
-        QString apiKey = "eedcd5f107823e8b8e30ef4e3cce6e04"; // Замените на ваш API ключ
+        // TEMP FIX
+        std::ifstream file(".env");
+
+        std::string strapi;
+        file >> strapi;
+
+        QString apiKey(strapi.c_str()); // Замените на ваш API ключ
+
         QString url = QString("https://api.openweathermap.org/data/2.5/weather?q=%1&appid=%2&units=metric&lang=ru")
                          .arg(city).arg(apiKey);
 
