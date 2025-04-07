@@ -24,10 +24,7 @@ public:
         manager = new QNetworkAccessManager(this);
         connect(manager, &QNetworkAccessManager::finished, this, &WeatherApp::onWeatherDataReceived);
 
-         //Загрузка погоды по умолчанию
-        //QTimer::singleShot(0, this, [this]() {
             searchWeather();
-        //});
     }
 
 
@@ -40,20 +37,18 @@ private slots:
 
         if (city.isEmpty()) return;
 
-        // TEMP FIX
         std::ifstream file(".env");
 
         std::string strapi;
         file >> strapi;
 
-        QString apiKey("eedcd5f107823e8b8e30ef4e3cce6e04"); // Замените на ваш API ключ
+        QString apiKey("eedcd5f107823e8b8e30ef4e3cce6e04");
 
         QString url = QString("https://api.openweathermap.org/data/2.5/weather?q=%1&appid=%2&units=metric&lang=ru")
                          .arg(city).arg(apiKey);
 
         manager->get(QNetworkRequest(QUrl(url)));
 
-        // Показываем индикатор загрузки
         weatherLabel->setText("Загрузка данных...");
         weatherIconLabel->clear();
     }
@@ -79,7 +74,6 @@ private slots:
 
     void onCitySelected(int index) {
         if (index >= 0) {
-            //searchWeather();
         }
     }
 
@@ -89,7 +83,6 @@ private:
         QWidget *centralWidget = new QWidget(this);
         QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
 
-        // Верхняя панель с выбором города
         QHBoxLayout *cityLayout = new QHBoxLayout();
 
         cityComboBox = new QComboBox(this);
@@ -114,7 +107,6 @@ private:
         cityLayout->addWidget(cityInput);
         cityLayout->addWidget(searchButton);
 
-        // Основная область с информацией о погоде
         weatherIconLabel = new QLabel(this);
         weatherIconLabel->setAlignment(Qt::AlignCenter);
 
@@ -140,7 +132,6 @@ private:
     void setupConnections() {
         connect(searchButton, &QPushButton::clicked, this, &WeatherApp::searchWeather);
         connect(cityComboBox, QOverload<int>::of(&QComboBox::activated), this, &WeatherApp::onCitySelected);
-        //connect(cityInput, &QLineEdit::returnPressed, this, &WeatherApp::searchWeather);
     }
 
     void updateWeatherUI(const QJsonObject &jsonObject) {
@@ -151,20 +142,8 @@ private:
         QString description = jsonObject["weather"].toArray()[0].toObject()["description"].toString();
         QString iconCode = jsonObject["weather"].toArray()[0].toObject()["icon"].toString();
 
-        // Установка иконки погоды
         QString iconUrl = QString("https://openweathermap.org/img/wn/%1@2x.png").arg(iconCode);
         QNetworkRequest iconRequest(iconUrl);
-        //QNetworkReply *iconReply = manager->get(iconRequest);
-        /*connect(iconReply, &QNetworkReply::finished, this, [this, iconReply]() {
-            iconReply->deleteLater();
-            if (!iconReply->error()) {
-                QPixmap pixmap;
-                pixmap.loadFromData(iconReply->readAll());
-                weatherIconLabel->setPixmap(pixmap.scaled(100, 100, Qt::KeepAspectRatio));
-            }
-        });*/
-
-        // Форматирование текста с информацией о погоде
         QString weatherText = QString(
             "<h2>%1</h2>"
             "<p><b>Температура:</b> %2°C</p>"
