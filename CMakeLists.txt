@@ -10,6 +10,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add executable
 add_executable(WeatherApp main.cpp)
+qt_add_resources(WeatherApp "resourses"
+    PREFIX "/"
+    FILES
+        icons/app_icon.png
+        icons/search.png
+)
 
 # Link Qt libraries
 target_link_libraries(WeatherApp
