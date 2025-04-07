@@ -1,14 +1,12 @@
+#include "WeatherAPI/WeatherAPI.hpp"
 #include "MainWindow/MainWindow.hpp"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    // Установка стиля приложения
-    app.setStyle("Fusion");
-    app.setWindowIcon(QIcon(":icons/app_icon.png"));
+    WeatherAPI api;
 
-    WeatherApp window;
-    window.show();
+    api.request();
 
     return app.exec();
 }

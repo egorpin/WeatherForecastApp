@@ -8,14 +8,12 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+#add_subdirectory(MainWindow)
+#add_subdirectory(WeatherAPI)
+
 # Add executable
-add_executable(WeatherApp main.cpp)
-qt_add_resources(WeatherApp "resourses"
-    PREFIX "/"
-    FILES
-        icons/app_icon.png
-        icons/search.png
-)
+add_executable(WeatherApp main.cpp WeatherAPI/WeatherAPI.cpp WeatherAPI/WeatherAPI.hpp
+ WeatherAPI/WeatherObject.cpp WeatherAPI/WeatherObject.hpp )
 
 # Link Qt libraries
 target_link_libraries(WeatherApp
