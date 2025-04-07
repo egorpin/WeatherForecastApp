@@ -25,7 +25,7 @@ qt_add_resources(WeatherApp "MainWindow/resourses.qrc"
         MainWindow/icons/app_icon.png
         MainWindow/icons/search.png
 )
-
+find_package(Qt6 REQUIRED COMPONENTS Gui Widgets Network)
 target_link_libraries(WeatherApp
     Qt6::Widgets
     Qt6::Network
