@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-file(GLOB SOURCES 
+file(GLOB SOURCES
     "*.cpp"
     "MainWindow/*.cpp"
 )
@@ -30,5 +30,3 @@ target_link_libraries(WeatherApp
     Qt6::Widgets
     Qt6::Network
 )
-
-
