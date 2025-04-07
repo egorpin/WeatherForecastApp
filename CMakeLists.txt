@@ -10,7 +10,10 @@ set(CMAKE_AUTORCC ON)
 
 file(GLOB SOURCES
     "*.cpp"
+    "WeatherAPI/*.cpp"
+    "WeatherAPI/*.hpp"
     "MainWindow/*.cpp"
+    "MainWindow/*.hpp"
 )
 
 include_directories(

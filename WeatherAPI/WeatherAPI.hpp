@@ -14,7 +14,7 @@ WeatherAPI();
 QNetworkRequest request();
 WeatherObject parseRequest(QNetworkReply* reply);
 private:
-const char* getApiKey();
+std::string getApiKey();
 
 QString url;
 QString apiKey;
