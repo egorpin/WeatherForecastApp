@@ -15,10 +15,16 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void allowPartialHiding(const QPoint& newPos);
+
+
 
 private:
     void setupTitleBar();
-    QPoint m_dragPos;
+
+    bool m_isDragging = false;
+    QPoint m_dragStartPosition;
+    QPoint m_windowStartPosition;
 
     QPoint dragPosition;
     QWidget *titleBar;

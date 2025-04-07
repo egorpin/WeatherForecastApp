@@ -1,20 +1,18 @@
 #include "MainWindow.hpp"
 #include "style.qcss"
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QStyle>
-#include <QIcon>
-#include <QPixmap>
-#include <QToolButton>
-#include <QGraphicsOpacityEffect>
-#include <QPropertyAnimation>
-#include <QMouseEvent>
 #include <QApplication>
+#include <QGraphicsOpacityEffect>
+#include <QHBoxLayout>
+#include <QIcon>
+#include <QMouseEvent>
+#include <QPixmap>
+#include <QPropertyAnimation>
+#include <QStyle>
+#include <QToolButton>
+#include <QVBoxLayout>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-{
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Убираем стандартную рамку окна
     setWindowFlags(Qt::FramelessWindowHint);
 
@@ -25,8 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     view = new WeatherView(this);
 
     // Компоновка
-    QWidget *centralWidget = new QWidget(this);
-    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+    QWidget* centralWidget = new QWidget(this);
+    QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
@@ -38,15 +36,16 @@ MainWindow::MainWindow(QWidget *parent)
     resize(400, 500);
 
     view->showLoadingIndicator();
+
+    setWindowFlags(Qt::FramelessWindowHint);
 }
 
-void MainWindow::setupTitleBar()
-{
+void MainWindow::setupTitleBar() {
     titleBar = new QWidget(this);
     titleBar->setFixedHeight(30);
     titleBar->setStyleSheet("background-color: #2b2b2b;");
 
-    QHBoxLayout *titleLayout = new QHBoxLayout(titleBar);
+    QHBoxLayout* titleLayout = new QHBoxLayout(titleBar);
     titleLayout->setContentsMargins(5, 0, 5, 0);
     titleLayout->setSpacing(5);
 
@@ -65,7 +64,7 @@ void MainWindow::setupTitleBar()
     // Кнопка сворачивания
     minimizeButton = new QToolButton(titleBar);
     minimizeButton->setIcon(QIcon(":MainWindow/icons/minimize.png"));
-    minimizeButton->setIconSize(QSize(16, 16));
+    minimizeButton->setIconSize(QSize(15, 15));
     minimizeButton->setStyleSheet(windowButtonStyle);
     minimizeButton->setToolTip("Свернуть");
     connect(minimizeButton, &QToolButton::clicked, this, &QMainWindow::showMinimized);
@@ -73,7 +72,7 @@ void MainWindow::setupTitleBar()
     // Кнопка разворачивания/восстановления
     maximizeButton = new QToolButton(titleBar);
     maximizeButton->setIcon(QIcon(":MainWindow/icons/maximize.png"));
-    maximizeButton->setIconSize(QSize(16, 16));
+    maximizeButton->setIconSize(QSize(15, 15));
     maximizeButton->setStyleSheet(windowButtonStyle);
     maximizeButton->setToolTip("Развернуть");
     connect(maximizeButton, &QToolButton::clicked, [this]() {
@@ -91,7 +90,7 @@ void MainWindow::setupTitleBar()
     // Кнопка закрытия
     closeButton = new QToolButton(titleBar);
     closeButton->setIcon(QIcon(":MainWindow/icons/close.png"));
-    closeButton->setIconSize(QSize(16, 16));
+    closeButton->setIconSize(QSize(15, 15));
     closeButton->setStyleSheet(closeButtonStyle);
     closeButton->setToolTip("Закрыть");
     connect(closeButton, &QToolButton::clicked, this, &QMainWindow::close);
@@ -106,7 +105,6 @@ void MainWindow::setupTitleBar()
         anim->setDuration(150);
         anim->setStartValue(0.7);
         anim->setEndValue(1.0);
-
     };
 
     addHoverAnimation(minimizeButton);
@@ -118,49 +116,64 @@ void MainWindow::setupTitleBar()
     titleLayout->addWidget(closeButton);
 }
 
-void MainWindow::mousePressEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton &&
-        titleBar->geometry().contains(event->pos()) &&
-        !isMaximized())
-    {
-        // Фиксируем точку захвата относительно окна
-        m_dragPos = event->pos();
+void MainWindow::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton && 
+        event->position().toPoint().y() < 40) { // Только верхние 40 пикселей
+        m_isDragging = true;
+        m_dragStartPosition = event->globalPosition().toPoint();
+        m_windowStartPosition = this->pos();
         event->accept();
     }
 }
 
-void MainWindow::mouseMoveEvent(QMouseEvent *event)
-{
-    if ((event->buttons() & Qt::LeftButton) &&
-        !m_dragPos.isNull() &&
-        !isMaximized())
-    {
-        // Вычисляем новую позицию окна
-        QPoint newPos = event->globalPos() - m_dragPos;
-
-        // Если окно частично выходит за экран - корректируем позицию
-        QRect screen = QApplication::primaryScreen()->availableGeometry();
-        if (newPos.x() < screen.left()) newPos.setX(screen.left());
-        if (newPos.y() < screen.top()) newPos.setY(screen.top());
-        if (newPos.x() > screen.right() - width()) newPos.setX(screen.right() - width());
-        if (newPos.y() > screen.bottom() - height()) newPos.setY(screen.bottom() - height());
-
+void MainWindow::mouseMoveEvent(QMouseEvent* event) {
+    if (m_isDragging) {
+        QPoint delta = event->globalPosition().toPoint() - m_dragStartPosition;
+        QPoint newPos = m_windowStartPosition + delta;
+        
+        // Полностью убираем ограничения по границам экрана
         move(newPos);
+        
+        // Опционально: частичное скрытие за границами
+        // allowPartialHiding(newPos);
+        
         event->accept();
     }
 }
 
-void MainWindow::mouseReleaseEvent(QMouseEvent *event)
-{
-    Q_UNUSED(event);
-    m_dragPos = QPoint(); // Сбрасываем позицию при отпускании кнопки
+void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        m_isDragging = false;
+        unsetCursor(); // Восстанавливаем курсор
+        event->accept();
+        
+        // Опционально: притягивание к границам при отпускании
+        // snapToScreenEdges();
+    }
 }
 
-void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton &&
-        titleBar->geometry().contains(event->position().toPoint())) {
+void MainWindow::mouseDoubleClickEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton && titleBar->geometry().contains(event->position().toPoint())) {
         maximizeButton->click();
         event->accept();
+    }
+}
+
+void MainWindow::allowPartialHiding(const QPoint& newPos)
+{
+    // Разрешаем окну частично скрываться за границами
+    QRect screenGeometry = QApplication::primaryScreen()->geometry();
+    QRect windowGeometry = this->geometry();
+    
+    // Проверяем, чтобы хотя бы часть окна оставалась видимой
+    if (!screenGeometry.intersects(windowGeometry)) {
+        // Если окно полностью за границами, немного возвращаем
+        int x = qBound(screenGeometry.left() - width() + 50, 
+                      newPos.x(),
+                      screenGeometry.right() - 50);
+        int y = qBound(screenGeometry.top() - height() + 50,
+                      newPos.y(),
+                      screenGeometry.bottom() - 50);
+        move(x, y);
     }
 }
