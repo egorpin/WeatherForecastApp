@@ -11,12 +11,11 @@ public:
 WeatherAPI();
 ~WeatherAPI() {}
 
-QNetworkRequest request();
+QNetworkRequest request(QString city);
 WeatherObject parseRequest(QNetworkReply* reply);
 private:
 std::string getApiKey();
 
 QString url;
 QString apiKey;
-QString city;
 };

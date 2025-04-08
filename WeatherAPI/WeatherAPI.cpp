@@ -8,7 +8,6 @@
 WeatherAPI::WeatherAPI(){
     apiKey = QString(getApiKey().c_str());
     url = "https://api.openweathermap.org/data/2.5/weather?q=%1&appid=%2&units=metric&lang=ru";
-    city = "Москва";
 }
 
 std::string WeatherAPI::getApiKey(){
@@ -20,7 +19,7 @@ std::string WeatherAPI::getApiKey(){
     return strapi;
 }
 
-QNetworkRequest WeatherAPI::request(){
+QNetworkRequest WeatherAPI::request(QString city){
     qDebug() << "Request to " << url.arg(city);
     return QNetworkRequest(url.arg(city).arg(apiKey));
 }

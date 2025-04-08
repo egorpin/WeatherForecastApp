@@ -9,11 +9,11 @@
 
 WeatherView::WeatherView(QWidget* parent) : QWidget(parent) {
     setupUI();
-    // setupConnections();
+    setupConnections();
 
     manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished, this, &WeatherView::onWeatherDataReceived);
-    manager->get(api.request());
+    manager->get(api.request("Москва"));
 
     //QTimer::singleShot(0, this, [this]() { searchWeather(); });
 }
@@ -65,20 +65,24 @@ void WeatherView::setupUI() {
     mainLayout->addStretch();
 }
 
-/*
+
 void WeatherView::setupConnections() {
     connect(searchButton, &QPushButton::clicked, [this]() {
         QString city = cityInput->text().trimmed();
         if (city.isEmpty()) {
-            city = cityComboBox->currentText();
+            city = QString("");
         }
         emit citySearchRequested(city);
     });
-}*/
+}
 
 std::string WeatherView::getSelectedCity() const {
     QString city = cityInput->text().trimmed();
     return city.toStdString();
+}
+
+void WeatherView::citySearchRequested(const QString& city) {
+    manager->get(api.request(city));
 }
 
 void WeatherView::displayWeather(const WeatherObject& data) {
