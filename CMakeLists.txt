@@ -14,6 +14,8 @@ file(GLOB SOURCES
     "WeatherAPI/*.hpp"
     "MainWindow/*.cpp"
     "MainWindow/*.hpp"
+    "Utilities/*.cpp"
+    "Utilities/*.hpp"
 )
 
 include_directories(

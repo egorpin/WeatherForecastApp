@@ -1,11 +1,13 @@
 #include "WeatherAPI.hpp"
 
+#include "../Utilities/filedownloader.hpp"
+
 #include <fstream>
 
 #include <QJsonDocument>
 #include <QException>
 
-WeatherAPI::WeatherAPI(){
+WeatherAPI::WeatherAPI(QObject* parent) : QObject(parent) {
     apiKey = QString(getApiKey().c_str());
     url = "https://api.openweathermap.org/data/2.5/weather?q=%1&appid=%2&units=metric&lang=ru";
 }
@@ -37,4 +39,10 @@ WeatherObject WeatherAPI::parseRequest(QNetworkReply* reply) {\
     QJsonObject jsonObject = jsonResponse.object();
 
     return WeatherObject(jsonObject);
+}
+
+void WeatherAPI::requestIcon(WeatherObject& wobj) {
+    //FileDownloader* fd = new FileDownloader(wobj.IconUrl(), this);
+
+    //connect(fd, SIGNAL(downloaded(QByteArray)), parent(), SLOT (loadIcon(QByteArray)));
 }

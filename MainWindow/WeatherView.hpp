@@ -24,6 +24,7 @@ signals:
 
 private slots:
     void onWeatherDataReceived(QNetworkReply *reply);
+    void loadIcon();
 
 private:
     void setupUI();
@@ -35,5 +36,5 @@ private:
     QLabel *weatherIconLabel;
     QLabel *weatherLabel;
 
-    WeatherAPI api;
+    WeatherAPI* api;
 };

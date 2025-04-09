@@ -13,6 +13,10 @@ WeatherObject::WeatherObject(const QJsonObject& json){
     qDebug() << "Reply: " << *this;
 }
 
+QUrl WeatherObject::IconUrl() const {
+    return QUrl(QString("https://openweathermap.org/img/wn/%1").arg(iconCode));
+}
+
 QDebug operator<<(QDebug debug, const WeatherObject& wobj){
     debug << "City: " << wobj.city << '\n';
     debug << "Temp: " << wobj.temp << '\n';
