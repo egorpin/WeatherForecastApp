@@ -14,7 +14,7 @@ WeatherObject::WeatherObject(const QJsonObject& json){
 }
 
 QUrl WeatherObject::IconUrl() const {
-    return QUrl(QString("https://openweathermap.org/img/wn/%1").arg(iconCode));
+    return QUrl(QString("https://openweathermap.org/img/wn/%1@2x.png").arg(iconCode));
 }
 
 QDebug operator<<(QDebug debug, const WeatherObject& wobj){

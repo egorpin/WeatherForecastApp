@@ -13,23 +13,20 @@ WeatherView::WeatherView(QWidget* parent) : QWidget(parent) {
     setupUI();
     setupConnections();
 
-    manager = new QNetworkAccessManager(this);
-    connect(manager, &QNetworkAccessManager::finished, this, &WeatherView::onWeatherDataReceived);
-    manager->get(api->request("Москва"));
+    connect(api, &WeatherAPI::weatherDataReady, this, &WeatherView::onWeatherDataReceived);
+    api->request("Москва");
 
     //QTimer::singleShot(0, this, [this]() { searchWeather(); });
 }
 
-void loadIcon(QByteArray iconImgData){
-    // вот тут будет подгружаться иконка
-}
 
-void WeatherView::onWeatherDataReceived(QNetworkReply* reply) {
-    reply->deleteLater();
+void WeatherView::onWeatherDataReceived(WeatherObject* wobj) {
+    //reply->deleteLater();
 
     try {
-        WeatherObject wobj = api->parseRequest(reply);
-        displayWeather(wobj);
+        //WeatherObject wobj = api->parseRequest(reply);
+        //api->requestIcon(wobj, loadIcon);
+        displayWeather(*wobj);
     } catch (...) {
         weatherLabel->setText("Ошибка: неверный формат данных");
         return;
@@ -68,6 +65,7 @@ void WeatherView::setupUI() {
     mainLayout->addLayout(cityLayout);
     mainLayout->addWidget(weatherIconLabel);
     mainLayout->addWidget(weatherLabel);
+
     mainLayout->addStretch();
 }
 
@@ -88,7 +86,7 @@ std::string WeatherView::getSelectedCity() const {
 }
 
 void WeatherView::citySearchRequested(const QString& city) {
-    manager->get(api->request(city));
+    api->request(city);
 }
 
 void WeatherView::displayWeather(const WeatherObject& data) {
@@ -105,6 +103,10 @@ void WeatherView::displayWeather(const WeatherObject& data) {
                               .arg(data.description);
 
     weatherLabel->setText(weatherText);
+
+    QPixmap image;
+    image.loadFromData(data.iconImgdata);
+    weatherIconLabel->setPixmap(image);
 }
 
 void WeatherView::showErrorMessage(const QString& message) {

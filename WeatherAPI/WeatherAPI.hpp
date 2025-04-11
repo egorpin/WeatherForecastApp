@@ -7,18 +7,22 @@
 #include <QNetworkReply>
 
 class WeatherAPI : public QObject {
+Q_OBJECT
 public:
 WeatherAPI(QObject* parent = 0);
 ~WeatherAPI() {}
 
-QNetworkRequest request(QString city);
-WeatherObject parseRequest(QNetworkReply* reply);
-void requestIcon(WeatherObject& wobj);
+void request(QString city);
+WeatherObject* parseData(QNetworkReply* reply);
+void requestIcon(QNetworkReply* dataReply);
 
+signals:
+void weatherDataReady(WeatherObject*);
 
 private:
 std::string getApiKey();
 
+QNetworkAccessManager* manager;
 QString url;
 QString apiKey;
 };

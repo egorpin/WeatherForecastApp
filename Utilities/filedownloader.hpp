@@ -7,14 +7,14 @@
 #include <QObject>
 
 class FileDownloader : public QObject {
-Q_OBJECT
+    Q_OBJECT
  public:
     explicit FileDownloader(QUrl imageUrl, QObject* parent = 0);
     virtual ~FileDownloader();
     QByteArray downloadedData() const;
 
  signals:
-    void downloaded(QByteArray data);
+    void downloaded(QByteArray);
 
  private slots:
     void fileDownloaded(QNetworkReply* pReply);

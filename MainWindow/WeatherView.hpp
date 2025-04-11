@@ -9,6 +9,7 @@
 #include <QNetworkAccessManager>
 
 #include "../WeatherAPI/WeatherAPI.hpp"
+#include "../WeatherAPI/WeatherObject.hpp"
 
 class WeatherView : public QWidget {
 public:
@@ -23,14 +24,12 @@ signals:
     void citySearchRequested(const QString& city);
 
 private slots:
-    void onWeatherDataReceived(QNetworkReply *reply);
-    void loadIcon();
+    void onWeatherDataReceived(WeatherObject *reply);
 
 private:
     void setupUI();
     void setupConnections();
 
-    QNetworkAccessManager *manager;
     QLineEdit *cityInput;
     QPushButton *searchButton;
     QLabel *weatherIconLabel;
