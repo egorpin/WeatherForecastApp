@@ -41,6 +41,12 @@ void WeatherView::setupUI() {
 
     cityInput = new QLineEdit(this);
     cityInput->setPlaceholderText("Введите город");
+    cityInput->setStyleSheet(
+        "color: black;"
+        "background-color: rgba(255, 255, 255, 177);" // city input color change (полупрозрачный)
+        "border: 1px solid rgba(255, 255, 255, 50);"
+        "border-radius: 4px;"
+        "padding: 4px;");
 
     searchButton = new QPushButton(this);
     searchButton->setIcon(QIcon(":MainWindow/icons/search.png"));
