@@ -21,16 +21,6 @@ WeatherView::WeatherView(QWidget *parent) : QWidget(parent) {
     // нужно делать обновление погоды раз в какое-то время
 }
 
-
-void WeatherView::onWeatherDataReceived(WeatherObject* wobj) {
-    if (!wobj->IsValid()){
-        // иконку погоды надо очистить
-        weatherLabel->setText("Ошибка: неверный формат данных");
-        return;
-    }
-    displayWeather(*wobj);
-}
-
 void WeatherView::setupUI() {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(20, 20, 20, 20);
