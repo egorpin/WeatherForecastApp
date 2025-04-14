@@ -33,9 +33,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     setCentralWidget(centralWidget);
     setWindowIcon(QIcon(":MainWindow/icons/app_icon.png"));
-    resize(400, 500);
+    resize(900, 600);
 
     view->showLoadingIndicator();
+
+    this->setStyleSheet("background-color: rgba(0, 168, 219, 0.78);");
 
     setWindowFlags(Qt::FramelessWindowHint);
 }
@@ -43,7 +45,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 void MainWindow::setupTitleBar() {
     titleBar = new QWidget(this);
     titleBar->setFixedHeight(30);
-    titleBar->setStyleSheet("background-color: #2b2b2b;");
+    titleBar->setStyleSheet("background-color:rgb(28, 41, 80);");
 
     QHBoxLayout* titleLayout = new QHBoxLayout(titleBar);
     titleLayout->setContentsMargins(5, 0, 5, 0);
@@ -117,8 +119,7 @@ void MainWindow::setupTitleBar() {
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event) {
-    if (event->button() == Qt::LeftButton && 
-        event->position().toPoint().y() < 40) { // Только верхние 40 пикселей
+    if (event->button() == Qt::LeftButton && event->position().toPoint().y() < 40) {  // Только верхние 40 пикселей
         m_isDragging = true;
         m_dragStartPosition = event->globalPosition().toPoint();
         m_windowStartPosition = this->pos();
@@ -130,13 +131,13 @@ void MainWindow::mouseMoveEvent(QMouseEvent* event) {
     if (m_isDragging) {
         QPoint delta = event->globalPosition().toPoint() - m_dragStartPosition;
         QPoint newPos = m_windowStartPosition + delta;
-        
+
         // Полностью убираем ограничения по границам экрана
         move(newPos);
-        
+
         // Опционально: частичное скрытие за границами
         // allowPartialHiding(newPos);
-        
+
         event->accept();
     }
 }
@@ -144,9 +145,9 @@ void MainWindow::mouseMoveEvent(QMouseEvent* event) {
 void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
         m_isDragging = false;
-        unsetCursor(); // Восстанавливаем курсор
+        unsetCursor();  // Восстанавливаем курсор
         event->accept();
-        
+
         // Опционально: притягивание к границам при отпускании
         // snapToScreenEdges();
     }
@@ -159,21 +160,16 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent* event) {
     }
 }
 
-void MainWindow::allowPartialHiding(const QPoint& newPos)
-{
+void MainWindow::allowPartialHiding(const QPoint& newPos) {
     // Разрешаем окну частично скрываться за границами
     QRect screenGeometry = QApplication::primaryScreen()->geometry();
     QRect windowGeometry = this->geometry();
-    
+
     // Проверяем, чтобы хотя бы часть окна оставалась видимой
     if (!screenGeometry.intersects(windowGeometry)) {
         // Если окно полностью за границами, немного возвращаем
-        int x = qBound(screenGeometry.left() - width() + 50, 
-                      newPos.x(),
-                      screenGeometry.right() - 50);
-        int y = qBound(screenGeometry.top() - height() + 50,
-                      newPos.y(),
-                      screenGeometry.bottom() - 50);
+        int x = qBound(screenGeometry.left() - width() + 50, newPos.x(), screenGeometry.right() - 50);
+        int y = qBound(screenGeometry.top() - height() + 50, newPos.y(), screenGeometry.bottom() - 50);
         move(x, y);
     }
 }
