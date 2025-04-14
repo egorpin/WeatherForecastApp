@@ -1,13 +1,14 @@
 #include "WeatherAPI.hpp"
 
-#include "../Utilities/filedownloader.hpp"
+#include "../Utilities/Filedownloader.hpp"
 
 #include "../MainWindow/WeatherView.hpp"
 
 #include <fstream>
 
-#include <QJsonDocument>
 #include <QException>
+#include <QJsonDocument>
+
 
 WeatherAPI::WeatherAPI(QObject* parent) : QObject(parent) {
     manager = new QNetworkAccessManager(this);
@@ -16,7 +17,7 @@ WeatherAPI::WeatherAPI(QObject* parent) : QObject(parent) {
     url = "https://api.openweathermap.org/data/2.5/weather?q=%1&appid=%2&units=metric&lang=ru";
 }
 
-std::string WeatherAPI::getApiKey(){
+std::string WeatherAPI::getApiKey() {
     std::ifstream file("../.env");
 
     std::string strapi;
@@ -25,7 +26,7 @@ std::string WeatherAPI::getApiKey(){
     return strapi;
 }
 
-void WeatherAPI::request(QString city){
+void WeatherAPI::request(QString city) {
     qDebug() << "Request to " << url.arg(city);
     manager->get(QNetworkRequest(url.arg(city).arg(apiKey)));
 
@@ -37,25 +38,32 @@ void WeatherAPI::requestIcon(QNetworkReply* dataReply) {
 
     WeatherObject* wobj = parseData(dataReply);
 
+    if (!wobj->IsValid()) {
+        emit weatherDataReady(wobj);
+        return;
+    }
+
     qDebug() << wobj->IconUrl();
     FileDownloader* fd = new FileDownloader(wobj->IconUrl(), this);
 
-    connect(fd, &FileDownloader::downloaded, this, [=] (QByteArray imageData) {
-        wobj->iconImgdata = imageData;
-        emit weatherDataReady(wobj);
-    }, Qt::ConnectionType::SingleShotConnection);
+    connect(
+        fd, &FileDownloader::downloaded, this,
+        [=](QByteArray imageData) {
+            wobj->iconImgdata = imageData;
+            emit weatherDataReady(wobj);
+        },
+        Qt::ConnectionType::SingleShotConnection);
 }
 
-
-WeatherObject* WeatherAPI::parseData(QNetworkReply* dataReply) {\
+WeatherObject* WeatherAPI::parseData(QNetworkReply* dataReply) {
     if (dataReply->error()) {
         qCritical() << dataReply->error();
-        throw QException();
+        return new WeatherObject(false);
     }
     QJsonDocument jsonResponse = QJsonDocument::fromJson(dataReply->readAll());
 
     if (jsonResponse.isNull()) {
-        throw QException();
+        return new WeatherObject(false);
     }
     QJsonObject jsonObject = jsonResponse.object();
 

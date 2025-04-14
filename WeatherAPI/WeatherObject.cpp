@@ -2,7 +2,11 @@
 
 #include <QJsonArray>
 
-WeatherObject::WeatherObject(const QJsonObject& json){
+WeatherObject::WeatherObject(bool is_valid){
+    isValid = is_valid;
+}
+
+WeatherObject::WeatherObject(const QJsonObject& json, bool is_valid) : WeatherObject(is_valid) {
     city = json["name"].toString();
     temp = json["main"].toObject()["temp"].toDouble();
     humidity = json["main"].toObject()["humidity"].toInt();
@@ -24,4 +28,8 @@ QDebug operator<<(QDebug debug, const WeatherObject& wobj){
     debug << "WindSpeed: " << wobj.windSpeed << '\n';
     debug << "Description: " << wobj.description << '\n';
     return debug;
+}
+
+bool WeatherObject::IsValid() {
+    return isValid;
 }

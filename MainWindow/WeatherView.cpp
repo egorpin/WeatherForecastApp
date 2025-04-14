@@ -17,20 +17,18 @@ WeatherView::WeatherView(QWidget* parent) : QWidget(parent) {
     api->request("Москва");
 
     //QTimer::singleShot(0, this, [this]() { searchWeather(); });
+
+    // нужно делать обновление погоды раз в какое-то время
 }
 
 
 void WeatherView::onWeatherDataReceived(WeatherObject* wobj) {
-    //reply->deleteLater();
-
-    try {
-        //WeatherObject wobj = api->parseRequest(reply);
-        //api->requestIcon(wobj, loadIcon);
-        displayWeather(*wobj);
-    } catch (...) {
+    if (!wobj->IsValid()){
+        // иконку погоды надо очистить
         weatherLabel->setText("Ошибка: неверный формат данных");
         return;
     }
+    displayWeather(*wobj);
 }
 
 void WeatherView::setupUI() {
@@ -72,6 +70,7 @@ void WeatherView::setupUI() {
 
 void WeatherView::setupConnections() {
     connect(searchButton, &QPushButton::clicked, [this]() {
+        // нужно показать индикатор загрузки
         QString city = cityInput->text().trimmed();
         if (city.isEmpty()) {
             city = QString("");

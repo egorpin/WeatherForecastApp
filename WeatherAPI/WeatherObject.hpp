@@ -4,11 +4,17 @@
 #include <QJsonObject>
 
 class WeatherObject {
+private:
+bool isValid;
+
 public:
-WeatherObject(const QJsonObject& json);
+WeatherObject(bool is_valid=true);
+WeatherObject(const QJsonObject& json, bool is_valid=true);
 ~WeatherObject() {}
 
 QUrl IconUrl() const;
+
+bool IsValid();
 
 friend QDebug operator<<(QDebug debug, const WeatherObject& wobj);
 
