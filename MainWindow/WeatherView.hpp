@@ -4,36 +4,41 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QComboBox>
-#include <QJsonObject>
-#include <QNetworkAccessManager>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
 
 #include "../WeatherAPI/WeatherAPI.hpp"
 #include "../WeatherAPI/WeatherObject.hpp"
 
 class WeatherView : public QWidget {
+    Q_OBJECT
 public:
     explicit WeatherView(QWidget *parent = nullptr);
-
+    
     std::string getSelectedCity() const;
+    
+signals:
+    void citySearchRequested(const QString &city);
+
+public slots:
     void displayWeather(const WeatherObject &data);
     void showErrorMessage(const QString &message);
     void showLoadingIndicator();
 
-signals:
-    void citySearchRequested(const QString& city);
-
 private slots:
-    void onWeatherDataReceived(WeatherObject *reply);
+    void onWeatherDataReceived(WeatherObject *wobj);
 
 private:
     void setupUI();
     void setupConnections();
-
+    
+    WeatherAPI *api;
+    QLabel *cityTitleLabel;
     QLineEdit *cityInput;
     QPushButton *searchButton;
     QLabel *weatherIconLabel;
-    QLabel *weatherLabel;
-
-    WeatherAPI* api;
+    QLabel *currentWeatherLabel;
+    QWidget *forecastContainer;
+    QGridLayout *forecastLayout;
 };
