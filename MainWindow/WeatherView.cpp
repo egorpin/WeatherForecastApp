@@ -13,8 +13,8 @@ WeatherView::WeatherView(QWidget *parent) : QWidget(parent) {
     setupUI();
     setupConnections();
 
-    connect(api, &WeatherAPI::weatherDataReady, this, &WeatherView::onWeatherDataReceived);
     api->request("Москва");
+    api->requestForecast("Москва");
 
     //QTimer::singleShot(0, this, [this]() { searchWeather(); });
 
@@ -102,6 +102,8 @@ void WeatherView::setupUI() {
         QLabel *dayLabel = new QLabel("День " + QString::number(i+1), dayWidget);
         QLabel *tempLabel = new QLabel("--°C", dayWidget);
 
+        tempLabel->setObjectName(QString("templabel%1").arg(i));
+
         dayLabel->setStyleSheet("color: white; font-size: 14px;");
         tempLabel->setStyleSheet("color: white; font-size: 16px; font-weight: bold;");
 
@@ -114,6 +116,7 @@ void WeatherView::setupUI() {
 }
 
 void WeatherView::setupConnections() {
+    connect(api, &WeatherAPI::weatherDataReady, this, &WeatherView::onWeatherDataReceived);
     connect(searchButton, &QPushButton::clicked, [this]() {
         // нужно показать индикатор загрузки
         QString city = cityInput->text().trimmed();
@@ -123,6 +126,7 @@ void WeatherView::setupConnections() {
         }
         emit citySearchRequested(city);
     });
+    connect(api, &WeatherAPI::forecastDataReady, this, &WeatherView::onForecastDataReceived);
 }
 
 void WeatherView::onWeatherDataReceived(WeatherObject *wobj) {
@@ -133,6 +137,15 @@ void WeatherView::onWeatherDataReceived(WeatherObject *wobj) {
 
     displayWeather(*wobj);
     delete wobj;
+}
+
+void WeatherView::onForecastDataReceived(QVector<WeatherObject*>wobj) {
+    if (wobj.isEmpty()) {
+        showErrorMessage("Неверные данные о погоде");
+        return;
+    }
+
+    displayForecast(wobj);
 }
 
 void WeatherView::displayWeather(const WeatherObject &data) {
@@ -158,6 +171,15 @@ void WeatherView::displayWeather(const WeatherObject &data) {
      .arg(data.description);
 
     currentWeatherLabel->setText(weatherText);
+}
+
+void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast){
+    QList<QLabel*> list = forecastContainer->findChildren<QLabel*>(QRegularExpression("templabel\\d"));
+    for (int i = 0;i < forecast.size();i++){
+        qDebug() << *forecast[i];
+        list[i]->setText(QString(
+        "<p>%1°C</p>").arg(std::ceil(forecast[i]->temp * 100.0) / 100.0));
+    }
 }
 
 void WeatherView::showErrorMessage(const QString &message) {

@@ -17,6 +17,16 @@ WeatherObject::WeatherObject(const QJsonObject& json, bool is_valid) : WeatherOb
     qDebug() << "Reply: " << *this;
 }
 
+WeatherObject::WeatherObject(QVector<WeatherObject*> day_forecast, bool is_valid) : WeatherObject(is_valid) {
+    for (auto& wobj : day_forecast){
+        temp += wobj->temp / day_forecast.size();
+        qDebug() << "TEMP=" << temp << " WOBJ TEMP=" << wobj->temp;
+        humidity += static_cast<double>(wobj->humidity) / day_forecast.size();
+        windSpeed += wobj->windSpeed / day_forecast.size();
+    }
+
+}
+
 QUrl WeatherObject::IconUrl() const {
     return QUrl(QString("https://openweathermap.org/img/wn/%1@2x.png").arg(iconCode));
 }

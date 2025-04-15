@@ -10,6 +10,7 @@ bool isValid;
 public:
 WeatherObject(bool is_valid=true);
 WeatherObject(const QJsonObject& json, bool is_valid=true);
+WeatherObject(QVector<WeatherObject*> day_forecast, bool is_valid=true);
 ~WeatherObject() {}
 
 QUrl IconUrl() const;

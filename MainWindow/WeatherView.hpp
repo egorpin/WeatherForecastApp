@@ -15,24 +15,27 @@ class WeatherView : public QWidget {
     Q_OBJECT
 public:
     explicit WeatherView(QWidget *parent = nullptr);
-    
+
     std::string getSelectedCity() const;
-    
+
 signals:
     void citySearchRequested(const QString &city);
 
 public slots:
     void displayWeather(const WeatherObject &data);
+    void displayForecast(const QVector<WeatherObject*>& forecast);
     void showErrorMessage(const QString &message);
     void showLoadingIndicator();
 
 private slots:
     void onWeatherDataReceived(WeatherObject *wobj);
+    void onForecastDataReceived(QVector<WeatherObject*> wobj);
 
 private:
     void setupUI();
     void setupConnections();
-    
+
+
     WeatherAPI *api;
     QLabel *cityTitleLabel;
     QLineEdit *cityInput;
