@@ -14,16 +14,20 @@ WeatherAPI(QObject* parent = 0);
 
 void request(QString city);
 
-void requestIcon(QNetworkReply* dataReply);
+
 void requestForecast(QString city);
+
 
 signals:
 void weatherDataReady(WeatherObject*);
-void forecastDataReady(QVector<WeatherObject*>);
+void forecastDataReady(QVector<WeatherObject*>*);
 
 
 private slots:
+void requestIcon(QNetworkReply* dataReply);
 void parseForecast(QNetworkReply* dataReply);
+void forecastIconReady(QVector<WeatherObject*>* wobj_vector);
+void requestForecastIcon(QVector<WeatherObject*>* wobj_vector);
 
 private:
 std::string getApiKey();

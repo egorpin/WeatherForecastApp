@@ -46,13 +46,13 @@ void WeatherAPI::requestForecast(QString city){
 void WeatherAPI::parseForecast(QNetworkReply* dataReply){
     if (dataReply->error()) {
         qCritical() << dataReply->error();
-        emit forecastDataReady(QVector<WeatherObject*>());
+        emit forecastDataReady(nullptr);
     }
 
     QJsonDocument jsonResponse = QJsonDocument::fromJson(dataReply->readAll());
 
     if (jsonResponse.isNull()) {
-        emit forecastDataReady(QVector<WeatherObject*>());
+        emit forecastDataReady(nullptr);
     }
     QJsonObject jsonObject = jsonResponse.object();
 
@@ -64,12 +64,11 @@ void WeatherAPI::parseForecast(QNetworkReply* dataReply){
     }
 
 
-    QVector<WeatherObject*> result;
+    QVector<WeatherObject*>* result = new QVector<WeatherObject*>();
     for (int i = 0;i < cnt / 8;i++){
-        result.append(new WeatherObject(QVector<WeatherObject*>(vector.begin() + i * 8, vector.begin() + i * 8 + 8)));
+        result->append(new WeatherObject(QVector<WeatherObject*>(vector.begin() + i * 8, vector.begin() + i * 8 + 8)));
+        requestForecastIcon(result);
     }
-
-    emit forecastDataReady(result);
 }
 
 void WeatherAPI::requestIcon(QNetworkReply* dataReply) {
@@ -92,6 +91,30 @@ void WeatherAPI::requestIcon(QNetworkReply* dataReply) {
             emit weatherDataReady(wobj);
         },
         Qt::ConnectionType::SingleShotConnection);
+}
+
+void WeatherAPI::requestForecastIcon(QVector<WeatherObject*>* wobj_vector){
+    for (auto& wobj : *wobj_vector){
+        FileDownloader* fd = new FileDownloader(wobj->IconUrl(), this);
+
+        connect(
+            fd, &FileDownloader::downloaded, this,
+            [=](QByteArray imageData) {
+                wobj->iconImgdata = imageData;
+                forecastIconReady(wobj_vector);
+            },
+            Qt::ConnectionType::SingleShotConnection);
+    }
+}
+
+void WeatherAPI::forecastIconReady(QVector<WeatherObject*>* wobj_vector){
+    for (auto& wobj : *wobj_vector){
+        if (wobj->iconImgdata.size() == 0){
+            return;
+        }
+    }
+
+    emit forecastDataReady(wobj_vector);
 }
 
 WeatherObject* WeatherAPI::parseData(QNetworkReply* dataReply) {

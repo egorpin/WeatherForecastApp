@@ -2,8 +2,13 @@
 
 #include <QJsonArray>
 
+bool iconCodeComparator(const QPair<QString, int>& l, const QPair<QString, int>& r){
+    return (l.second < r.second) || (l.second == r.second) && (l.first < r.first);
+}
+
 WeatherObject::WeatherObject(bool is_valid){
     isValid = is_valid;
+    iconImgdata = QByteArray(0, Qt::Initialization::Uninitialized);
 }
 
 WeatherObject::WeatherObject(const QJsonObject& json, bool is_valid) : WeatherObject(is_valid) {
@@ -18,12 +23,21 @@ WeatherObject::WeatherObject(const QJsonObject& json, bool is_valid) : WeatherOb
 }
 
 WeatherObject::WeatherObject(QVector<WeatherObject*> day_forecast, bool is_valid) : WeatherObject(is_valid) {
+    std::map<QString, int> iconMap;
     for (auto& wobj : day_forecast){
         temp += wobj->temp / day_forecast.size();
         qDebug() << "TEMP=" << temp << " WOBJ TEMP=" << wobj->temp;
         humidity += static_cast<double>(wobj->humidity) / day_forecast.size();
         windSpeed += wobj->windSpeed / day_forecast.size();
+
+        if (iconMap.find(wobj->iconCode) == iconMap.end()){
+            iconMap[wobj->iconCode] = 0;
+        }
+
+        iconMap[wobj->iconCode]++;
     }
+
+    iconCode = std::max_element(iconMap.begin(), iconMap.end(), iconCodeComparator)->first;
 
 }
 
