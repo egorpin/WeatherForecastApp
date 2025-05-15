@@ -1,7 +1,0 @@
-# Hashes of file build rules.
-f8ce980729f2674270eb6a8badec9e47 .rcc/qrc_backgrounds.cpp
-5b96061664225c4acc13d654c214654e .rcc/qrc_icons.cpp
-e3f74178806c64a3ab65e6ffcbf3a3b4 .rcc/qrc_styles.cpp
-22a6bc7f3110a41458d592908b56c87a CMakeFiles/WeatherApp_autogen
-22a6bc7f3110a41458d592908b56c87a CMakeFiles/WeatherApp_autogen_timestamp_deps
-27956f900126f43c87459ea8afb51030 WeatherApp_autogen/timestamp
