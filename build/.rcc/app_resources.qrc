@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="MainWindow/resources.qrc">/home/winer/pracktikatest/WeatherForecastApp/MainWindow/resources.qrc</file>
+  </qresource>
+</RCC>
+

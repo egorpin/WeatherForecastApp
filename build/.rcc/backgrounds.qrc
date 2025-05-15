@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="MainWindow/resources/backgrounds/bg1.jpg">/home/winer/pracktikatest/WeatherForecastApp/MainWindow/resources/backgrounds/bg1.jpg</file>
+    <file alias="MainWindow/resources/backgrounds/bg2.jpg">/home/winer/pracktikatest/WeatherForecastApp/MainWindow/resources/backgrounds/bg2.jpg</file>
+    <file alias="MainWindow/resources/backgrounds/bg3.jpg">/home/winer/pracktikatest/WeatherForecastApp/MainWindow/resources/backgrounds/bg3.jpg</file>
+  </qresource>
+</RCC>
+

@@ -1,0 +1,6 @@
+/home/winer/pracktikatest/WeatherForecastApp/build/CMakeFiles/WeatherApp.dir
+/home/winer/pracktikatest/WeatherForecastApp/build/CMakeFiles/WeatherApp_other_files.dir
+/home/winer/pracktikatest/WeatherForecastApp/build/CMakeFiles/edit_cache.dir
+/home/winer/pracktikatest/WeatherForecastApp/build/CMakeFiles/rebuild_cache.dir
+/home/winer/pracktikatest/WeatherForecastApp/build/CMakeFiles/WeatherApp_autogen_timestamp_deps.dir
+/home/winer/pracktikatest/WeatherForecastApp/build/CMakeFiles/WeatherApp_autogen.dir

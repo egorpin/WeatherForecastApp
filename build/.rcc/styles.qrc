@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="MainWindow/resources/styles/backgrounds.qss">/home/winer/pracktikatest/WeatherForecastApp/MainWindow/resources/styles/backgrounds.qss</file>
+  </qresource>
+</RCC>
+

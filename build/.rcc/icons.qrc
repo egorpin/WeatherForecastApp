@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="MainWindow/icons/minimize.png">/home/winer/pracktikatest/WeatherForecastApp/MainWindow/icons/minimize.png</file>
+    <file alias="MainWindow/icons/maximize.png">/home/winer/pracktikatest/WeatherForecastApp/MainWindow/icons/maximize.png</file>
+    <file alias="MainWindow/icons/close.png">/home/winer/pracktikatest/WeatherForecastApp/MainWindow/icons/close.png</file>
+    <file alias="MainWindow/icons/restore.png">/home/winer/pracktikatest/WeatherForecastApp/MainWindow/icons/restore.png</file>
+  </qresource>
+</RCC>
+

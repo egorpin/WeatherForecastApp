@@ -1,10 +1,12 @@
 <!DOCTYPE RCC><RCC version="1.0">
-<qresource prefix="/">
-    <file alias="icons/app_icon.png">icons/app_icon.png</file>
-    <file alias="icons/search.png">icons/search.png</file>
-    <file alias="icons/minimize.png">icons/minimize.png</file>
-    <file alias="icons/restore.png">icons/restore.png</file>
-    <file alias="icons/close.png">icons/close.png</file>
-    <file alias="icons/maximize.png">icons/maximize.png</file>    
-</qresource>
+  <qresource prefix="/">
+    <file>resources/styles/backgrounds.qss</file>
+    <file>resources/backgrounds/bg1.jpg</file>
+    <file>resources/backgrounds/bg2.jpg</file>
+    <file>resources/backgrounds/bg3.jpg</file>
+    <file>icons/minimize.png</file>
+    <file>icons/maximize.png</file>
+    <file>icons/close.png</file>
+    <file>icons/restore.png</file>
+  </qresource>
 </RCC>

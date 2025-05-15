@@ -1,0 +1,34 @@
+MainWindow {
+    background-color: rgba(0, 168, 219, 0.78);
+    background-position: center;
+    background-repeat: no-repeat;
+    background: cover;
+    backdrop-filter: blur(5px);
+    transition: background 0.5s ease;
+}
+
+QLabel {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+QLineEdit {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: black;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+QPushButton {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 4px;
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+QPushButton:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
