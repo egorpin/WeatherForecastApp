@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     setCentralWidget(centralWidget);
     setWindowIcon(QIcon(":MainWindow/icons/app_icon.png"));
-    setStyleSheet("background-color: rgba(0, 168, 219, 0.78);");
+    setStyleSheet("background-color: rgba(172, 172, 172, 0.78);");
 
     QSettings settings;
     int bgIndex = settings.value("background", 0).toInt();
@@ -53,7 +53,13 @@ void MainWindow::setupTitleBar() {
     titleLayout->setSpacing(5);
 
     titleIcon = new QLabel(titleBar);
-    titleIcon->setPixmap(QPixmap(":MainWindow/icons/app_icon.png").scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    QPixmap appPixmap(":/MainWindow/icons/app_icon.png");
+    if(!appPixmap.isNull()) {
+        titleIcon->setPixmap(appPixmap.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    } else {
+        qDebug() << "Юра епта ну где значок приложения";
+        titleIcon->setText("App");
+    }
     titleLayout->addWidget(titleIcon);
 
     titleLabel = new QLabel("Прогноз погоды", titleBar);

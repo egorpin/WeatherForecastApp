@@ -47,7 +47,13 @@ void WeatherView::setupUI() {
     );
 
     searchButton = new QPushButton(this);
-    searchButton->setIcon(QIcon(":MainWindow/icons/search.png"));
+    QPixmap searchPixmap(":/MainWindow/icons/search.png");
+    if(!searchPixmap.isNull()) {
+        searchButton->setIcon(QIcon(searchPixmap));
+    } else {
+        qDebug() << "Валера блять где значок поиска";
+        searchButton->setText("Search");
+    }
     searchButton->setIconSize(QSize(24, 24));
     searchButton->setFixedSize(40, 40);
     searchButton->setStyleSheet(
@@ -80,8 +86,8 @@ void WeatherView::setupUI() {
     currentWeatherLayout->addWidget(currentWeatherLabel, 1);
     mainLayout->addLayout(currentWeatherLayout);
 
-    // 7-day forecast
-    QLabel *forecastTitle = new QLabel("Прогноз на 7 дней", this);
+    // 5-day forecast
+    QLabel *forecastTitle = new QLabel("Прогноз на 5 дней", this);
     forecastTitle->setStyleSheet("font-size: 24px; font-weight: bold; color: white;");
     mainLayout->addWidget(forecastTitle);
 
@@ -90,7 +96,7 @@ void WeatherView::setupUI() {
     forecastLayout->setHorizontalSpacing(15);
     forecastLayout->setVerticalSpacing(10);
 
-    for(int i = 0; i < 7; i++) {
+    for(int i = 0; i < 5; i++) {
         QWidget *dayWidget = new QWidget(forecastContainer);
         dayWidget->setStyleSheet(
             "background-color: rgba(255, 255, 255, 50);"
@@ -99,7 +105,8 @@ void WeatherView::setupUI() {
         );
 
         QVBoxLayout *dayLayout = new QVBoxLayout(dayWidget);
-        QLabel *dayLabel = new QLabel("День " + QString::number(i+1), dayWidget);
+        QLabel *dayLabel = new QLabel("День", dayWidget);
+        dayLabel->setObjectName(QString("daylabel%1").arg(i));
         QLabel *tempLabel = new QLabel("--°C", dayWidget);
 
         tempLabel->setObjectName(QString("templabel%1").arg(i));
@@ -178,12 +185,26 @@ void WeatherView::displayWeather(const WeatherObject &data) {
     currentWeatherLabel->setText(weatherText);
 }
 
-void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast){
-    QList<QLabel*> list = forecastContainer->findChildren<QLabel*>(QRegularExpression("templabel\\d"));
-    for (int i = 0;i < forecast.size();i++){
-        qDebug() << *forecast[i];
-        list[i]->setText(QString(
-        "<p>%1°C</p>").arg(std::ceil(forecast[i]->temp * 100.0) / 100.0));
+void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast) {
+    QMap<QString, QString> dayTranslations = {
+        {"Monday", "Понедельник"},
+        {"Tuesday", "Вторник"},
+        {"Wednesday", "Среда"},
+        {"Thursday", "Четверг"},
+        {"Friday", "Пятница"},
+        {"Saturday", "Суббота"},
+        {"Sunday", "Воскресенье"},
+    };
+
+    QList<QLabel*> dayLabels = forecastContainer->findChildren<QLabel*>(QRegularExpression("daylabel\\d"));
+    QList<QLabel*> tempLabels = forecastContainer->findChildren<QLabel*>(QRegularExpression("templabel\\d"));
+    
+    for (int i = 0; i < forecast.size() && i < dayLabels.size(); i++) {
+        QString dayName = forecast[i]->getDayOfWeek();
+        QString translatedDay = dayTranslations.value(dayName, dayName); // Если перевода нет, оставляем оригинал
+        
+        dayLabels[i]->setText(translatedDay);
+        tempLabels[i]->setText(QString("%1°C").arg(std::ceil(forecast[i]->temp * 100.0) / 100.0));
     }
 }
 

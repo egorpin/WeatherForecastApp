@@ -11,7 +11,15 @@ WeatherObject::WeatherObject(bool is_valid){
     iconImgdata = QByteArray(0, Qt::Initialization::Uninitialized);
 }
 
+QString WeatherObject::getDayOfWeek() const {
+    QDateTime dateTime;
+    dateTime.setSecsSinceEpoch(dt); // dt нужно добавить как поле класса
+    return dateTime.toString("dddd"); // Полное название дня недели
+    // Или для короткого названия: return dateTime.toString("ddd");
+}
+
 WeatherObject::WeatherObject(const QJsonObject& json, bool is_valid) : WeatherObject(is_valid) {
+    dt = json["dt"].toVariant().toLongLong();
     city = json["name"].toString();
     temp = json["main"].toObject()["temp"].toDouble();
     humidity = json["main"].toObject()["humidity"].toInt();
@@ -24,6 +32,10 @@ WeatherObject::WeatherObject(const QJsonObject& json, bool is_valid) : WeatherOb
 
 WeatherObject::WeatherObject(QVector<WeatherObject*> day_forecast, bool is_valid) : WeatherObject(is_valid) {
     std::map<QString, int> iconMap;
+    if (!day_forecast.isEmpty()) {
+        dt = day_forecast[0]->dt; // Берем timestamp из первого объекта дня
+    }
+    
     for (auto& wobj : day_forecast){
         temp += wobj->temp / day_forecast.size();
         qDebug() << "TEMP=" << temp << " WOBJ TEMP=" << wobj->temp;

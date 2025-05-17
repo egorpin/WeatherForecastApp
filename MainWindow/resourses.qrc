@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource prefix="/">
+    <file>icons/app_icon.png</file>
+    <file>icons/search_new.png</file>   
     <file>resources/styles/backgrounds.qss</file>
     <file>resources/backgrounds/bg1.jpg</file>
     <file>resources/backgrounds/bg2.jpg</file>

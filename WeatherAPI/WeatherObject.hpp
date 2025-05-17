@@ -12,7 +12,8 @@ WeatherObject(bool is_valid=true);
 WeatherObject(const QJsonObject& json, bool is_valid=true);
 WeatherObject(QVector<WeatherObject*> day_forecast, bool is_valid=true);
 ~WeatherObject() {}
-
+qint64 dt;
+QString getDayOfWeek() const;
 QUrl IconUrl() const;
 
 bool IsValid();
