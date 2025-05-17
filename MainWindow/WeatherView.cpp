@@ -129,6 +129,11 @@ void WeatherView::setupConnections() {
     connect(api, &WeatherAPI::forecastDataReady, this, &WeatherView::onForecastDataReceived);
 }
 
+void WeatherView::citySearchRequested(const QString& city) {
+    api->request(city);
+    api->requestForecast(city);
+}
+
 void WeatherView::onWeatherDataReceived(WeatherObject *wobj) {
     if (!wobj) {
         showErrorMessage("Неверные данные о погоде");
@@ -139,13 +144,13 @@ void WeatherView::onWeatherDataReceived(WeatherObject *wobj) {
     delete wobj;
 }
 
-void WeatherView::onForecastDataReceived(QVector<WeatherObject*>wobj) {
-    if (wobj.isEmpty()) {
+void WeatherView::onForecastDataReceived(QVector<WeatherObject*>* wobj) {
+    if (!wobj || wobj->isEmpty()) {
         showErrorMessage("Неверные данные о погоде");
         return;
     }
 
-    displayForecast(wobj);
+    displayForecast(*wobj);
 }
 
 void WeatherView::displayWeather(const WeatherObject &data) {

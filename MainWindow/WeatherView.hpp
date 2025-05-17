@@ -18,7 +18,6 @@ public:
 
     std::string getSelectedCity() const;
 
-signals:
     void citySearchRequested(const QString &city);
 
 public slots:
@@ -29,7 +28,7 @@ public slots:
 
 private slots:
     void onWeatherDataReceived(WeatherObject *wobj);
-    void onForecastDataReceived(QVector<WeatherObject*> wobj);
+    void onForecastDataReceived(QVector<WeatherObject*>* wobj);
 
 private:
     void setupUI();
