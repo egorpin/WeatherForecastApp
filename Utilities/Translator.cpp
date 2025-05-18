@@ -1,6 +1,7 @@
 #include <QMap>
 #include <QString>
 
+namespace {
 QMap<QString, QString> translations = {
     {"Monday", "Понедельник"},
     {"Tuesday", "Вторник"},
@@ -10,6 +11,7 @@ QMap<QString, QString> translations = {
     {"Saturday", "Суббота"},
     {"Sunday", "Воскресенье"},
 };
+}
 
 QString Translate(QString key){
     return translations.value(key, key);

@@ -1,6 +1,5 @@
 #include "WeatherAPI/WeatherAPI.hpp"
 #include "MainWindow/MainWindow.hpp"
-#include "Utilities/Geolocation.hpp"
 #include <QApplication>
 #include <QFile>
 #include <QDebug>
@@ -36,8 +35,6 @@ int main(int argc, char *argv[]) {
     try {
         MainWindow window;
         window.show();
-
-
 
         #ifdef QT_DEBUG
         qDebug() << "Checking API connectivity...";

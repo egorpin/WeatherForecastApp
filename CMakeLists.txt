@@ -36,6 +36,7 @@ qt_add_resources(WeatherApp "icons"
         MainWindow/icons/restore.png
         MainWindow/icons/app_icon.png
         MainWindow/icons/search.png
+        MainWindow/icons/error.png
 )
 
 qt_add_resources(WeatherApp "backgrounds"

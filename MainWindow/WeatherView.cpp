@@ -1,4 +1,5 @@
 #include "WeatherView.hpp"
+#include "ErrorDialog.hpp"
 #include "../Utilities/Translator.hpp"
 
 #include <QDate>
@@ -134,6 +135,15 @@ void WeatherView::setupConnections() {
         }
         emit citySearchRequested(city);
     });
+    connect(cityInput, &QLineEdit::returnPressed, [this]() {
+        // нужно показать индикатор загрузки
+        QString city = cityInput->text().trimmed();
+        if (city.isEmpty()) {
+            showErrorMessage("Введите название города");
+            return;
+        }
+        emit citySearchRequested(city);
+    });
     connect(api, &WeatherAPI::forecastDataReady, this, &WeatherView::onForecastDataReceived);
 }
 
@@ -164,6 +174,8 @@ void WeatherView::onForecastDataReceived(QVector<WeatherObject*>* wobj) {
 void WeatherView::displayWeather(const WeatherObject &data) {
     if (!cityTitleLabel || !weatherIconLabel || !currentWeatherLabel) return;
 
+    if(data.city.isEmpty()) return;
+
     cityTitleLabel->setText(data.city);
 
     if (!data.iconImgdata.isEmpty()) {
@@ -192,7 +204,6 @@ void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast) {
 
     for (int i = 0; i < forecast.size() && i < dayLabels.size(); i++) {
         QString dayName = forecast[i]->getDayOfWeek();
-        //QString translatedDay = dayTranslations.value(dayName, dayName); // Если перевода нет, оставляем оригинал
 
         dayLabels[i]->setText(Translate(dayName));
         tempLabels[i]->setText(QString("%1°C").arg(std::ceil(forecast[i]->temp)));
@@ -200,7 +211,8 @@ void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast) {
 }
 
 void WeatherView::showErrorMessage(const QString &message) {
-    currentWeatherLabel->setText("<span style='color:red;'>" + message + "</span>");
+    ErrorDialog dialog(message, this);
+    dialog.exec();
 }
 
 void WeatherView::showLoadingIndicator() {
