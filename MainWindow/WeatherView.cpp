@@ -1,4 +1,5 @@
 #include "WeatherView.hpp"
+#include "../Utilities/Translator.hpp"
 
 #include <QDate>
 #include <QJsonDocument>
@@ -186,25 +187,15 @@ void WeatherView::displayWeather(const WeatherObject &data) {
 }
 
 void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast) {
-    QMap<QString, QString> dayTranslations = {
-        {"Monday", "Понедельник"},
-        {"Tuesday", "Вторник"},
-        {"Wednesday", "Среда"},
-        {"Thursday", "Четверг"},
-        {"Friday", "Пятница"},
-        {"Saturday", "Суббота"},
-        {"Sunday", "Воскресенье"},
-    };
-
     QList<QLabel*> dayLabels = forecastContainer->findChildren<QLabel*>(QRegularExpression("daylabel\\d"));
     QList<QLabel*> tempLabels = forecastContainer->findChildren<QLabel*>(QRegularExpression("templabel\\d"));
-    
+
     for (int i = 0; i < forecast.size() && i < dayLabels.size(); i++) {
         QString dayName = forecast[i]->getDayOfWeek();
-        QString translatedDay = dayTranslations.value(dayName, dayName); // Если перевода нет, оставляем оригинал
-        
-        dayLabels[i]->setText(translatedDay);
-        tempLabels[i]->setText(QString("%1°C").arg(std::ceil(forecast[i]->temp * 100.0) / 100.0));
+        //QString translatedDay = dayTranslations.value(dayName, dayName); // Если перевода нет, оставляем оригинал
+
+        dayLabels[i]->setText(Translate(dayName));
+        tempLabels[i]->setText(QString("%1°C").arg(std::ceil(forecast[i]->temp)));
     }
 }
 
