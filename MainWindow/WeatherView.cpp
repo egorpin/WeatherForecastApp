@@ -8,19 +8,18 @@
 #include <QJsonArray>
 #include <QNetworkReply>
 #include <QDebug>
+#include <QTimer>
+#include <QRegularExpression>
 
 WeatherView::WeatherView(QWidget *parent) : QWidget(parent) {
     api = new WeatherAPI(this);
 
     setupUI();
     setupConnections();
+    applyStyles();
 
     api->request("Москва");
     api->requestForecast("Москва");
-
-    //QTimer::singleShot(0, this, [this]() { searchWeather(); });
-
-    // нужно делать обновление погоды раз в какое-то время
 }
 
 void WeatherView::setupUI() {
@@ -28,123 +27,327 @@ void WeatherView::setupUI() {
     mainLayout->setContentsMargins(20, 20, 20, 20);
     mainLayout->setSpacing(20);
 
-    // Header
-    QHBoxLayout *headerLayout = new QHBoxLayout();
-
-    cityTitleLabel = new QLabel("Москва", this);
-    cityTitleLabel->setStyleSheet("font-size: 32px; font-weight: bold; color: white;");
-    cityTitleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    headerLayout->addWidget(cityTitleLabel, 1);
+    // Search bar
+    QHBoxLayout *searchLayout = new QHBoxLayout();
+    searchLayout->setSpacing(10);
 
     cityInput = new QLineEdit(this);
     cityInput->setPlaceholderText("Введите город");
-    cityInput->setFixedWidth(200);
-    cityInput->setStyleSheet(
-        "color: black;"
-        "background-color: rgba(255, 255, 255, 177);"
-        "border: 1px solid rgba(255, 255, 255, 50);"
-        "border-radius: 4px;"
-        "padding: 8px;"
-        "font-size: 14px;"
-    );
 
     searchButton = new QPushButton(this);
     QPixmap searchPixmap(":/MainWindow/icons/search.png");
     if(!searchPixmap.isNull()) {
         searchButton->setIcon(QIcon(searchPixmap));
     } else {
-        qDebug() << "Валера блять где значок поиска";
-        searchButton->setText("Search");
+        searchButton->setText("Поиск");
     }
     searchButton->setIconSize(QSize(24, 24));
-    searchButton->setFixedSize(40, 40);
-    searchButton->setStyleSheet(
-        "QPushButton {"
-        "   border: none;"
-        "   background-color: rgba(255, 255, 255, 100);"
-        "   border-radius: 20px;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: rgba(255, 255, 255, 150);"
-        "}"
-    );
 
-    headerLayout->addWidget(cityInput);
-    headerLayout->addWidget(searchButton);
-    mainLayout->addLayout(headerLayout);
+    searchLayout->addWidget(cityInput);
+    searchLayout->addWidget(searchButton);
+    mainLayout->addLayout(searchLayout);
 
     // Current weather
-    QHBoxLayout *currentWeatherLayout = new QHBoxLayout();
+    QWidget *currentWeatherWidget = new QWidget(this);
+    QVBoxLayout *currentLayout = new QVBoxLayout(currentWeatherWidget);
+    currentLayout->setContentsMargins(20, 20, 20, 20);
+    currentLayout->setSpacing(15);
 
-    weatherIconLabel = new QLabel(this);
-    weatherIconLabel->setAlignment(Qt::AlignCenter);
-    weatherIconLabel->setFixedSize(150, 150);
+    cityLabel = new QLabel("Москва", this);
+    cityLabel->setAlignment(Qt::AlignCenter);
 
-    currentWeatherLabel = new QLabel(this);
-    currentWeatherLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    currentWeatherLabel->setStyleSheet("font-size: 18px; color: white;");
+    dateLabel = new QLabel(QDateTime::currentDateTime().toString("dddd, d MMMM, h:mm ap"), this);
+    dateLabel->setAlignment(Qt::AlignCenter);
 
-    currentWeatherLayout->addWidget(weatherIconLabel);
-    currentWeatherLayout->addWidget(currentWeatherLabel, 1);
-    mainLayout->addLayout(currentWeatherLayout);
+    weatherIcon = new QLabel(this);
+    weatherIcon->setAlignment(Qt::AlignCenter);
+    weatherIcon->setFixedSize(100, 100);
 
-    // 5-day forecast
-    QLabel *forecastTitle = new QLabel("Прогноз на 5 дней", this);
-    forecastTitle->setStyleSheet("font-size: 24px; font-weight: bold; color: white;");
-    mainLayout->addWidget(forecastTitle);
+    tempLabel = new QLabel("--°C", this);
+    tempLabel->setAlignment(Qt::AlignCenter);
 
-    forecastContainer = new QWidget(this);
-    forecastLayout = new QGridLayout(forecastContainer);
-    forecastLayout->setHorizontalSpacing(15);
-    forecastLayout->setVerticalSpacing(10);
+    descLabel = new QLabel("--", this);
+    descLabel->setAlignment(Qt::AlignCenter);
+
+    detailsLayout = new QHBoxLayout();
+    detailsLayout->setSpacing(20);
+
+    currentLayout->addWidget(cityLabel);
+    currentLayout->addWidget(dateLabel);
+    currentLayout->addWidget(weatherIcon);
+    currentLayout->addWidget(tempLabel);
+    currentLayout->addWidget(descLabel);
+    currentLayout->addLayout(detailsLayout);
+
+    mainLayout->addWidget(currentWeatherWidget);
+
+    // Forecast tabs
+    forecastTabs = new QTabWidget(this);
+
+    // Daily forecast tab
+    dailyForecast = new QWidget();
+    QVBoxLayout *dailyLayout = new QVBoxLayout(dailyForecast);
+    dailyLayout->setContentsMargins(5, 5, 5, 5);
+    dailyLayout->setSpacing(10);
 
     for(int i = 0; i < 5; i++) {
-        QWidget *dayWidget = new QWidget(forecastContainer);
-        dayWidget->setStyleSheet(
-            "background-color: rgba(255, 255, 255, 50);"
-            "border-radius: 10px;"
-            "padding: 10px;"
-        );
-
-        QVBoxLayout *dayLayout = new QVBoxLayout(dayWidget);
-        QLabel *dayLabel = new QLabel("День", dayWidget);
-        dayLabel->setObjectName(QString("daylabel%1").arg(i));
-        QLabel *tempLabel = new QLabel("--°C", dayWidget);
-
-        tempLabel->setObjectName(QString("templabel%1").arg(i));
-
-        dayLabel->setStyleSheet("color: white; font-size: 14px;");
-        tempLabel->setStyleSheet("color: white; font-size: 16px; font-weight: bold;");
-
-        dayLayout->addWidget(dayLabel);
-        dayLayout->addWidget(tempLabel);
-        forecastLayout->addWidget(dayWidget, 0, i);
+        dailyLayout->addWidget(createForecastDayWidget(
+            QDate::currentDate().addDays(i).toString("ddd, d MMM"),
+            "",
+            "--°C",
+            "--"
+        ));
     }
 
-    mainLayout->addWidget(forecastContainer);
+    // Hourly forecast tab
+    hourlyForecast = new QScrollArea();
+    hourlyForecast->setWidgetResizable(true);
+    QWidget *hourlyContent = new QWidget();
+    QVBoxLayout *hourlyLayout = new QVBoxLayout(hourlyContent);
+    hourlyLayout->setContentsMargins(5, 5, 5, 5);
+    hourlyLayout->setSpacing(10);
+
+    for(int i = 0; i < 24; i += 3) {
+        hourlyLayout->addWidget(createHourlyWidget(
+            QString("%1:00").arg(i, 2, 10, QChar('0')),
+            "",
+            "--°C",
+            "--"
+        ));
+    }
+
+    hourlyForecast->setWidget(hourlyContent);
+
+    forecastTabs->addTab(dailyForecast, "На 5 дней");
+    forecastTabs->addTab(hourlyForecast, "Почасовой");
+
+    mainLayout->addWidget(forecastTabs);
 }
 
 void WeatherView::setupConnections() {
     connect(api, &WeatherAPI::weatherDataReady, this, &WeatherView::onWeatherDataReceived);
-    connect(searchButton, &QPushButton::clicked, [this]() {
-        // нужно показать индикатор загрузки
-        QString city = cityInput->text().trimmed();
-        if (city.isEmpty()) {
-            showErrorMessage("Введите название города");
-            return;
-        }
-        emit citySearchRequested(city);
-    });
-    connect(cityInput, &QLineEdit::returnPressed, [this]() {
-        // нужно показать индикатор загрузки
-        QString city = cityInput->text().trimmed();
-        if (city.isEmpty()) {
-            showErrorMessage("Введите название города");
-            return;
-        }
-        emit citySearchRequested(city);
-    });
     connect(api, &WeatherAPI::forecastDataReady, this, &WeatherView::onForecastDataReceived);
+
+    connect(searchButton, &QPushButton::clicked, [this]() {
+        QString city = cityInput->text().trimmed();
+        if (city.isEmpty()) {
+            showErrorMessage("Введите название города");
+            return;
+        }
+        showLoadingIndicator();
+        emit citySearchRequested(city);
+    });
+
+    connect(cityInput, &QLineEdit::returnPressed, [this]() {
+        QString city = cityInput->text().trimmed();
+        if (city.isEmpty()) {
+            showErrorMessage("Введите название города");
+            return;
+        }
+        showLoadingIndicator();
+        emit citySearchRequested(city);
+    });
+}
+
+void WeatherView::applyStyles() {
+    setStyleSheet(R"(
+        QWidget {
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        QLineEdit {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 8px 15px;
+            font-size: 14px;
+            color: white;
+        }
+
+        QLineEdit:focus {
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        QPushButton {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 8px 15px;
+            font-size: 14px;
+            color: white;
+        }
+
+        QPushButton:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        QPushButton:pressed {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        QWidget#currentWeatherWidget {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+        }
+
+        QLabel#cityLabel {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        QLabel#dateLabel {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        QLabel#tempLabel {
+            font-size: 72px;
+            font-weight: lighter;
+        }
+
+        QLabel#descLabel {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        QTabWidget::pane {
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        QTabBar::tab {
+            background: transparent;
+            padding: 8px 15px;
+            color: white;
+            border: none;
+            font-size: 14px;
+        }
+
+        QTabBar::tab:selected {
+            color: white;
+            border-bottom: 2px solid white;
+        }
+
+        QTabBar::tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        QScrollArea {
+            border: none;
+            background: transparent;
+        }
+
+        QScrollBar:vertical {
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            width: 8px;
+            margin: 0;
+        }
+
+        QScrollBar::handle:vertical {
+            background: rgba(255, 255, 255, 0.3);
+            min-height: 20px;
+            border-radius: 4px;
+        }
+
+        QWidget#forecastDayWidget, QWidget#hourlyWidget {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        QWidget#forecastDayWidget:hover, QWidget#hourlyWidget:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    )");
+}
+
+QWidget* WeatherView::createDetailWidget(const QString &iconPath, const QString &value, const QString &title) {
+    QWidget *widget = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout(widget);
+    layout->setSpacing(5);
+    layout->setAlignment(Qt::AlignCenter);
+
+    QLabel *icon = new QLabel();
+    if (!iconPath.isEmpty()) {
+        icon->setPixmap(QPixmap(iconPath).scaled(30, 30, Qt::KeepAspectRatio));
+    }
+    icon->setAlignment(Qt::AlignCenter);
+
+    QLabel *valueLabel = new QLabel(value);
+    valueLabel->setAlignment(Qt::AlignCenter);
+
+    QLabel *titleLabel = new QLabel(title);
+    titleLabel->setAlignment(Qt::AlignCenter);
+
+    layout->addWidget(icon);
+    layout->addWidget(valueLabel);
+    layout->addWidget(titleLabel);
+
+    return widget;
+}
+
+QWidget* WeatherView::createForecastDayWidget(const QString &day, const QString &iconPath,
+                                           const QString &temp, const QString &desc) {
+    QWidget *widget = new QWidget();
+    widget->setObjectName("forecastDayWidget");
+    widget->setFixedHeight(80);
+
+    QHBoxLayout *layout = new QHBoxLayout(widget);
+    layout->setContentsMargins(15, 5, 15, 5);
+
+    QLabel *dayLabel = new QLabel(day);
+    dayLabel->setFixedWidth(120);
+
+    QLabel *icon = new QLabel();
+    if (!iconPath.isEmpty()) {
+        icon->setPixmap(QPixmap(iconPath).scaled(50, 50, Qt::KeepAspectRatio));
+    }
+
+    QLabel *tempLabel = new QLabel(temp);
+    tempLabel->setFixedWidth(80);
+
+    QLabel *descLabel = new QLabel(desc);
+    descLabel->setWordWrap(true);
+
+    layout->addWidget(dayLabel);
+    layout->addWidget(icon);
+    layout->addWidget(tempLabel);
+    layout->addWidget(descLabel);
+
+    return widget;
+}
+
+QWidget* WeatherView::createHourlyWidget(const QString &time, const QString &iconPath,
+                                      const QString &temp, const QString &desc) {
+    QWidget *widget = new QWidget();
+    widget->setObjectName("hourlyWidget");
+    widget->setFixedHeight(70);
+
+    QHBoxLayout *layout = new QHBoxLayout(widget);
+    layout->setContentsMargins(15, 5, 15, 5);
+
+    QLabel *timeLabel = new QLabel(time);
+    timeLabel->setFixedWidth(80);
+
+    QLabel *icon = new QLabel();
+    if (!iconPath.isEmpty()) {
+        icon->setPixmap(QPixmap(iconPath).scaled(40, 40, Qt::KeepAspectRatio));
+    }
+
+    QLabel *tempLabel = new QLabel(temp);
+    tempLabel->setFixedWidth(60);
+
+    QLabel *descLabel = new QLabel(desc);
+    descLabel->setWordWrap(true);
+
+    layout->addWidget(timeLabel);
+    layout->addWidget(icon);
+    layout->addWidget(tempLabel);
+    layout->addWidget(descLabel);
+
+    return widget;
 }
 
 void WeatherView::citySearchRequested(const QString& city) {
@@ -172,41 +375,73 @@ void WeatherView::onForecastDataReceived(QVector<WeatherObject*>* wobj) {
 }
 
 void WeatherView::displayWeather(const WeatherObject &data) {
-    if (!cityTitleLabel || !weatherIconLabel || !currentWeatherLabel) return;
+    if (data.city.isEmpty()) return;
 
-    if(data.city.isEmpty()) return;
-
-    cityTitleLabel->setText(data.city);
+    cityLabel->setText(data.city);
+    dateLabel->setText(QDateTime::currentDateTime().toString("dddd, d MMMM, h:mm ap"));
+    tempLabel->setText(QString("%1°C").arg(data.temp));
+    descLabel->setText(data.description);
 
     if (!data.iconImgdata.isEmpty()) {
         QPixmap pixmap;
         if (pixmap.loadFromData(data.iconImgdata)) {
-            weatherIconLabel->setPixmap(pixmap.scaled(150, 150, Qt::KeepAspectRatio));
+            weatherIcon->setPixmap(pixmap.scaled(100, 100, Qt::KeepAspectRatio));
         }
     }
 
-    QString weatherText = QString(
-        "<p><b>Температура:</b> %1°C</p>"
-        "<p><b>Влажность:</b> %3%</p>"
-        "<p><b>Ветер:</b> %4 м/с</p>"
-        "<p><b>Описание:</b> %6</p>"
-    ).arg(data.temp)
-     .arg(data.humidity)
-     .arg(data.windSpeed)
-     .arg(data.description);
+    // Clear old details
+    QLayoutItem *child;
+    while (child = detailsLayout->takeAt(0)) {
+        delete child->widget();
+        delete child;
+    }
 
-    currentWeatherLabel->setText(weatherText);
+    // Add new details
+    detailsLayout->addWidget(createDetailWidget(":/icons/humidity.png",
+        QString("%1%").arg(data.humidity), "Влажность"));
+    detailsLayout->addWidget(createDetailWidget(":/icons/wind.png",
+        QString("%1 м/с").arg(data.windSpeed), "Ветер"));
 }
 
 void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast) {
-    QList<QLabel*> dayLabels = forecastContainer->findChildren<QLabel*>(QRegularExpression("daylabel\\d"));
-    QList<QLabel*> tempLabels = forecastContainer->findChildren<QLabel*>(QRegularExpression("templabel\\d"));
+    // Update daily forecast
+    QVBoxLayout *dailyLayout = qobject_cast<QVBoxLayout*>(dailyForecast->layout());
+    if (dailyLayout) {
+        QLayoutItem *child;
+        while (child = dailyLayout->takeAt(0)) {
+            delete child->widget();
+            delete child;
+        }
 
-    for (int i = 0; i < forecast.size() && i < dayLabels.size(); i++) {
-        QString dayName = forecast[i]->getDayOfWeek();
+        for (int i = 0; i < forecast.size() && i < 5; i++) {
+            QString dayName = forecast[i]->getDayOfWeek();
+            dailyLayout->addWidget(createForecastDayWidget(
+                Translate(dayName),
+                "",
+                QString("%1°C").arg(std::ceil(forecast[i]->temp)),
+                forecast[i]->description
+            ));
+        }
+    }
 
-        dayLabels[i]->setText(Translate(dayName));
-        tempLabels[i]->setText(QString("%1°C").arg(std::ceil(forecast[i]->temp)));
+    // Update hourly forecast
+    QWidget *hourlyContent = hourlyForecast->widget();
+    QVBoxLayout *hourlyLayout = qobject_cast<QVBoxLayout*>(hourlyContent->layout());
+    if (hourlyLayout) {
+        QLayoutItem *child;
+        while (child = hourlyLayout->takeAt(0)) {
+            delete child->widget();
+            delete child;
+        }
+
+        for (int i = 0; i < forecast.size() && i < 8; i++) {
+            hourlyLayout->addWidget(createHourlyWidget(
+                QDateTime::fromSecsSinceEpoch(forecast[i]->dt).toString("h:mm ap"),
+                "",
+                QString("%1°C").arg(std::ceil(forecast[i]->temp)),
+                forecast[i]->description
+            ));
+        }
     }
 }
 
@@ -216,7 +451,8 @@ void WeatherView::showErrorMessage(const QString &message) {
 }
 
 void WeatherView::showLoadingIndicator() {
-    currentWeatherLabel->setText("Загрузка данных...");
+    tempLabel->setText("Загрузка...");
+    descLabel->setText("Получение данных о погоде");
 }
 
 std::string WeatherView::getSelectedCity() const {

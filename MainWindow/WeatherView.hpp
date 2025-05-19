@@ -7,6 +7,9 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
+#include <QTabWidget>
+#include <QScrollArea>
+#include <QDateTime>
 
 #include "../WeatherAPI/WeatherAPI.hpp"
 #include "../WeatherAPI/WeatherObject.hpp"
@@ -17,7 +20,6 @@ public:
     explicit WeatherView(QWidget *parent = nullptr);
 
     std::string getSelectedCity() const;
-
     void citySearchRequested(const QString &city);
 
 public slots:
@@ -33,14 +35,35 @@ private slots:
 private:
     void setupUI();
     void setupConnections();
-
+    void applyStyles();
+    QWidget* createDetailWidget(const QString &iconPath, const QString &value, const QString &title);
+    QWidget* createForecastDayWidget(const QString &day, const QString &iconPath,
+                                   const QString &temp, const QString &desc);
+    QWidget* createHourlyWidget(const QString &time, const QString &iconPath,
+                              const QString &temp, const QString &desc);
 
     WeatherAPI *api;
-    QLabel *cityTitleLabel;
+
+    // Search
     QLineEdit *cityInput;
     QPushButton *searchButton;
-    QLabel *weatherIconLabel;
-    QLabel *currentWeatherLabel;
-    QWidget *forecastContainer;
-    QGridLayout *forecastLayout;
+
+    // Current weather
+    QLabel *cityLabel;
+    QLabel *dateLabel;
+    QLabel *weatherIcon;
+    QLabel *tempLabel;
+    QLabel *descLabel;
+    QHBoxLayout *detailsLayout;
+
+    // Forecast
+    QTabWidget *forecastTabs;
+    QWidget *dailyForecast;
+    QScrollArea *hourlyForecast;
+
+    // Constants
+    const QString humidityIconPath = ":/icons/humidity.png";
+    const QString windIconPath = ":/icons/wind.png";
+    const QString pressureIconPath = ":/icons/pressure.png";
+    const QString searchIconPath = ":/MainWindow/icons/search.png";
 };
