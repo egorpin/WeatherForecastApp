@@ -2,7 +2,7 @@
 
 #include <QMainWindow>
 #include "WeatherView.hpp"
-#include "style.qcss"
+#include "button.qcss"
 
 class MainWindow : public QMainWindow {
 public:

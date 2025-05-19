@@ -1,6 +1,7 @@
 #include "WeatherView.hpp"
 #include "ErrorDialog.hpp"
 #include "../Utilities/Translator.hpp"
+#include "style.qcss"
 
 #include <QDate>
 #include <QJsonDocument>
@@ -10,7 +11,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QRegularExpression>
-
+#include <QTabBar>
 WeatherView::WeatherView(QWidget *parent) : QWidget(parent) {
     api = new WeatherAPI(this);
 
@@ -56,9 +57,6 @@ void WeatherView::setupUI() {
     cityLabel = new QLabel("Москва", this);
     cityLabel->setAlignment(Qt::AlignCenter);
 
-    dateLabel = new QLabel(QDateTime::currentDateTime().toString("dddd, d MMMM, h:mm ap"), this);
-    dateLabel->setAlignment(Qt::AlignCenter);
-
     weatherIcon = new QLabel(this);
     weatherIcon->setAlignment(Qt::AlignCenter);
     weatherIcon->setFixedSize(100, 100);
@@ -73,7 +71,6 @@ void WeatherView::setupUI() {
     detailsLayout->setSpacing(20);
 
     currentLayout->addWidget(cityLabel);
-    currentLayout->addWidget(dateLabel);
     currentLayout->addWidget(weatherIcon);
     currentLayout->addWidget(tempLabel);
     currentLayout->addWidget(descLabel);
@@ -99,29 +96,11 @@ void WeatherView::setupUI() {
         ));
     }
 
-    // Hourly forecast tab
-    hourlyForecast = new QScrollArea();
-    hourlyForecast->setWidgetResizable(true);
-    QWidget *hourlyContent = new QWidget();
-    QVBoxLayout *hourlyLayout = new QVBoxLayout(hourlyContent);
-    hourlyLayout->setContentsMargins(5, 5, 5, 5);
-    hourlyLayout->setSpacing(10);
-
-    for(int i = 0; i < 24; i += 3) {
-        hourlyLayout->addWidget(createHourlyWidget(
-            QString("%1:00").arg(i, 2, 10, QChar('0')),
-            "",
-            "--°C",
-            "--"
-        ));
-    }
-
-    hourlyForecast->setWidget(hourlyContent);
 
     forecastTabs->addTab(dailyForecast, "На 5 дней");
-    forecastTabs->addTab(hourlyForecast, "Почасовой");
 
-    mainLayout->addWidget(forecastTabs);
+    forecastTabs->tabBar()->setHidden(true); 
+    mainLayout->addWidget(forecastTabs, 1000, Qt::AlignCenter);
 }
 
 void WeatherView::setupConnections() {
@@ -150,117 +129,9 @@ void WeatherView::setupConnections() {
 }
 
 void WeatherView::applyStyles() {
-    setStyleSheet(R"(
-        QWidget {
-            color: white;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-
-        QLineEdit {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
-            padding: 8px 15px;
-            font-size: 14px;
-            color: white;
-        }
-
-        QLineEdit:focus {
-            border: 1px solid rgba(255, 255, 255, 0.7);
-        }
-
-        QPushButton {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
-            padding: 8px 15px;
-            font-size: 14px;
-            color: white;
-        }
-
-        QPushButton:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-
-        QPushButton:pressed {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        QWidget#currentWeatherWidget {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-        }
-
-        QLabel#cityLabel {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        QLabel#dateLabel {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        QLabel#tempLabel {
-            font-size: 72px;
-            font-weight: lighter;
-        }
-
-        QLabel#descLabel {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        QTabWidget::pane {
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-        }
-
-        QTabBar::tab {
-            background: transparent;
-            padding: 8px 15px;
-            color: white;
-            border: none;
-            font-size: 14px;
-        }
-
-        QTabBar::tab:selected {
-            color: white;
-            border-bottom: 2px solid white;
-        }
-
-        QTabBar::tab:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        QScrollArea {
-            border: none;
-            background: transparent;
-        }
-
-        QScrollBar:vertical {
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            width: 8px;
-            margin: 0;
-        }
-
-        QScrollBar::handle:vertical {
-            background: rgba(255, 255, 255, 0.3);
-            min-height: 20px;
-            border-radius: 4px;
-        }
-
-        QWidget#forecastDayWidget, QWidget#hourlyWidget {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-
-        QWidget#forecastDayWidget:hover, QWidget#hourlyWidget:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-    )");
+    QString combinedStyle = appStyle;
+    
+    setStyleSheet(combinedStyle);                      
 }
 
 QWidget* WeatherView::createDetailWidget(const QString &iconPath, const QString &value, const QString &title) {
@@ -319,37 +190,6 @@ QWidget* WeatherView::createForecastDayWidget(const QString &day, const QString 
     return widget;
 }
 
-QWidget* WeatherView::createHourlyWidget(const QString &time, const QString &iconPath,
-                                      const QString &temp, const QString &desc) {
-    QWidget *widget = new QWidget();
-    widget->setObjectName("hourlyWidget");
-    widget->setFixedHeight(70);
-
-    QHBoxLayout *layout = new QHBoxLayout(widget);
-    layout->setContentsMargins(15, 5, 15, 5);
-
-    QLabel *timeLabel = new QLabel(time);
-    timeLabel->setFixedWidth(80);
-
-    QLabel *icon = new QLabel();
-    if (!iconPath.isEmpty()) {
-        icon->setPixmap(QPixmap(iconPath).scaled(40, 40, Qt::KeepAspectRatio));
-    }
-
-    QLabel *tempLabel = new QLabel(temp);
-    tempLabel->setFixedWidth(60);
-
-    QLabel *descLabel = new QLabel(desc);
-    descLabel->setWordWrap(true);
-
-    layout->addWidget(timeLabel);
-    layout->addWidget(icon);
-    layout->addWidget(tempLabel);
-    layout->addWidget(descLabel);
-
-    return widget;
-}
-
 void WeatherView::citySearchRequested(const QString& city) {
     api->request(city);
     api->requestForecast(city);
@@ -378,7 +218,6 @@ void WeatherView::displayWeather(const WeatherObject &data) {
     if (data.city.isEmpty()) return;
 
     cityLabel->setText(data.city);
-    dateLabel->setText(QDateTime::currentDateTime().toString("dddd, d MMMM, h:mm ap"));
     tempLabel->setText(QString("%1°C").arg(data.temp));
     descLabel->setText(data.description);
 
@@ -397,9 +236,10 @@ void WeatherView::displayWeather(const WeatherObject &data) {
     }
 
     // Add new details
-    detailsLayout->addWidget(createDetailWidget(":/icons/humidity.png",
-        QString("%1%").arg(data.humidity), "Влажность"));
-    detailsLayout->addWidget(createDetailWidget(":/icons/wind.png",
+    detailsLayout->addWidget(createDetailWidget(":MainWindow/icons/humidity.png",
+        QString("%5%").arg(data.humidity), "Влажность"));
+        
+    detailsLayout->addWidget(createDetailWidget(":MainWindow/icons/wind.png",
         QString("%1 м/с").arg(data.windSpeed), "Ветер"));
 }
 
@@ -424,25 +264,6 @@ void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast) {
         }
     }
 
-    // Update hourly forecast
-    QWidget *hourlyContent = hourlyForecast->widget();
-    QVBoxLayout *hourlyLayout = qobject_cast<QVBoxLayout*>(hourlyContent->layout());
-    if (hourlyLayout) {
-        QLayoutItem *child;
-        while (child = hourlyLayout->takeAt(0)) {
-            delete child->widget();
-            delete child;
-        }
-
-        for (int i = 0; i < forecast.size() && i < 8; i++) {
-            hourlyLayout->addWidget(createHourlyWidget(
-                QDateTime::fromSecsSinceEpoch(forecast[i]->dt).toString("h:mm ap"),
-                "",
-                QString("%1°C").arg(std::ceil(forecast[i]->temp)),
-                forecast[i]->description
-            ));
-        }
-    }
 }
 
 void WeatherView::showErrorMessage(const QString &message) {

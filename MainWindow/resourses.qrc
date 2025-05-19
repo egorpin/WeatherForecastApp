@@ -11,5 +11,9 @@
     <file>icons/close.png</file>
     <file>icons/restore.png</file>
     <file>icons/error.png</file>
+    <file>icons/humidity.png<file>
+    <file>icons/wind.png<file>
+    <file>style.qcss<file>
+    <file>button.qcss<file>
   </qresource>
 </RCC>
