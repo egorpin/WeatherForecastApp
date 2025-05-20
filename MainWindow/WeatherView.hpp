@@ -10,6 +10,10 @@
 #include <QTabWidget>
 #include <QScrollArea>
 #include <QDateTime>
+#include <QGraphicsEffect>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsPixmapItem>
 
 #include "../WeatherAPI/WeatherAPI.hpp"
 #include "../WeatherAPI/WeatherObject.hpp"
@@ -22,14 +26,17 @@ public:
     std::string getSelectedCity() const;
     void citySearchRequested(const QString &city);
 
+signals:
+    void weatherUpdated(WeatherObject *wobj);
+
 public slots:
+    void onWeatherDataReceived(WeatherObject *wobj);
     void displayWeather(const WeatherObject &data);
     void displayForecast(const QVector<WeatherObject*>& forecast);
     void showErrorMessage(const QString &message);
     void showLoadingIndicator();
 
 private slots:
-    void onWeatherDataReceived(WeatherObject *wobj);
     void onForecastDataReceived(QVector<WeatherObject*>* wobj);
 
 private:

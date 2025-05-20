@@ -1,0 +1,33 @@
+const QString windowButtonStyle = R"(
+    QToolButton {
+        border: none;
+        background: transparent;
+        padding: 4px;
+        border-radius: 8px;
+        opacity: 0.9;
+    }
+    QToolButton:hover {
+        background: rgba(255, 255, 255, 0.2);
+        opacity: 1.0;
+    }
+    QToolButton:pressed {
+        background: rgba(255, 255, 255, 0.3);
+    }
+)";
+
+const QString closeButtonStyle = R"(
+    QToolButton {
+        border: none;
+        background: transparent;
+        padding: 4px;
+        border-radius: 8px;
+        opacity: 0.9;
+    }
+    QToolButton:hover {
+        background: #e81123;
+        opacity: 1.0;
+    }
+    QToolButton:pressed {
+        background: #f1707a;
+    }
+)";

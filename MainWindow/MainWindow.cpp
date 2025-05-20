@@ -13,34 +13,43 @@
 #include <QMenu>
 #include <QApplication>
 #include <QCursor>
+#include <QGraphicsBlurEffect>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent),
+      m_blurEffect(new QGraphicsBlurEffect(this)),
+      backgroundLabel(new QLabel(this))
+{
     setWindowFlags(Qt::FramelessWindowHint);
+
+    backgroundLabel->setScaledContents(true);
+    backgroundLabel->setGraphicsEffect(m_blurEffect);
+    m_blurEffect->setBlurRadius(15);
+    backgroundLabel->lower();
+
     setupTitleBar();
 
-    view = new WeatherView(this);
-
     QWidget *centralWidget = new QWidget(this);
+    centralWidget->setAttribute(Qt::WA_TranslucentBackground);
+
+    view = new WeatherView(centralWidget);
+    view->setAttribute(Qt::WA_TranslucentBackground);
+
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
-
     mainLayout->addWidget(titleBar);
     mainLayout->addWidget(view, 1);
 
     setCentralWidget(centralWidget);
     setWindowIcon(QIcon(":MainWindow/icons/app_icon.png"));
-    setStyleSheet("background-color: rgba(172, 172, 172, 0.78);");
 
-    QSettings settings;
-    int bgIndex = settings.value("background", 0).toInt();
-    if (bgIndex > 0) {
-        QAction* action = bgActionGroup->actions().at(bgIndex);
-        action->setChecked(true);
-        changeBackground(action);
-    }
+    setBackgroundImage(":/MainWindow/resources/backgrounds/clear.jpg");
 
-    m_isResizing = false;
+    connect(view, &WeatherView::weatherUpdated,
+            this, &MainWindow::handleWeatherUpdate);
 }
 
 void MainWindow::setupTitleBar() {
@@ -105,85 +114,63 @@ void MainWindow::setupTitleBar() {
     titleLayout->addWidget(minimizeButton);
     titleLayout->addWidget(maximizeButton);
     titleLayout->addWidget(closeButton);
+}
 
-    backgroundMenu = new QMenu("Фон", this);
-    bgActionGroup = new QActionGroup(this);
-
-    QStringList backgrounds = {"default", "bg1", "bg2", "bg3"};
-    for (int i = 0; i < backgrounds.size(); ++i) {
-        QAction* action = new QAction(backgrounds[i], this);
-        action->setCheckable(true);
-        action->setChecked(i == 0);
-        action->setData(i);
-        bgActionGroup->addAction(action);
-        backgroundMenu->addAction(action);
+void MainWindow::handleWeatherUpdate(WeatherObject *wobj) {
+    if (wobj && wobj->IsValid()) {
+        applyWeatherBackground(wobj->weatherId);
     }
+    delete wobj;
+}
 
-    connect(bgActionGroup, &QActionGroup::triggered, this, &MainWindow::changeBackground);
+void MainWindow::showEvent(QShowEvent* event) {
+    QMainWindow::showEvent(event);
+    if (event->spontaneous()) {
+        QScreen* screen = QGuiApplication::primaryScreen();
+        if (screen) {
+            QRect screenGeometry = screen->availableGeometry();
+            move((screenGeometry.width() - width()) / 2,
+                 (screenGeometry.height() - height()) / 2);
+        }
+    }
+}
 
-    QToolButton* menuButton = new QToolButton(titleBar);
-    menuButton->setIcon(QIcon(":MainWindow/icons/menu.png"));
-    menuButton->setMenu(backgroundMenu);
-    menuButton->setPopupMode(QToolButton::InstantPopup);
-    titleLayout->insertWidget(2, menuButton);
+void MainWindow::applyWeatherBackground(int weatherId) {
+    int backgroundId = 800; // По умолчанию ясно
+
+    if (weatherId >= 200 && weatherId < 300) backgroundId = 200; // Гроза
+    else if (weatherId >= 300 && weatherId < 400) backgroundId = 300; // Морось
+    else if (weatherId >= 500 && weatherId < 600) backgroundId = weatherId < 512 ? 500 : 511; // Дождь
+    else if (weatherId >= 600 && weatherId < 700) backgroundId = 600; // Снег
+    else if (weatherId >= 700 && weatherId < 800) backgroundId = 700; // Туман и т.д.
+    else if (weatherId >= 800) backgroundId = qMin(weatherId, 804); // Облака
+
+    setBackgroundImage(weatherBackgrounds.value(backgroundId,
+                       ":/MainWindow/resources/backgrounds/clear.jpg"));
+}
+
+void MainWindow::setBackgroundImage(const QString &imagePath) {
+    QPixmap bg(imagePath);
+    if (!bg.isNull()) {
+        QPalette palette;
+        palette.setBrush(backgroundRole(), QBrush(bg.scaled(size(), Qt::KeepAspectRatioByExpanding)));
+        setPalette(palette);
+    } else {
+        qWarning() << "Failed to load background image:" << imagePath;
+        setStyleSheet("background-color: rgba(0, 168, 219, 0.78);");
+    }
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
     QMainWindow::resizeEvent(event);
 
-    if (bgActionGroup->checkedAction()->data().toInt() != 0) {
-        QPalette palette = this->palette();
-        QString currentBgIndex = QString::number(bgActionGroup->checkedAction()->data().toInt());
-        QString imagePath = QString(":/MainWindow/resources/backgrounds/bg%1.jpg").arg(currentBgIndex);
-        QPixmap bg(imagePath);
-        if (!bg.isNull()) {
-            palette.setBrush(backgroundRole(), QBrush(bg.scaled(size(), Qt::KeepAspectRatioByExpanding)));
-            setPalette(palette);
-        } else {
-            qWarning() << "Background image not found or failed to load:" << imagePath;
-            setStyleSheet("background-color: rgba(0, 168, 219, 0.78);");
-        }
-    } else {
-        setStyleSheet("background-color: rgba(0, 168, 219, 0.78);");
+    QPixmap currentBg = palette().brush(backgroundRole()).texture();
+    if (!currentBg.isNull()) {
+        QPalette palette;
+        palette.setBrush(backgroundRole(),
+                        QBrush(currentBg.scaled(size(), Qt::KeepAspectRatioByExpanding)));
+        setPalette(palette);
     }
-}
-
-void MainWindow::showEvent(QShowEvent *event) {
-    QMainWindow::showEvent(event);
-
-    if (event->spontaneous()) {
-        QScreen *screen = QGuiApplication::primaryScreen();
-        if (screen) {
-            QRect screenGeometry = screen->availableGeometry();
-            move((screenGeometry.width() - width()) / 2, (screenGeometry.height() - height()) / 2);
-        }
-    }
-}
-
-void MainWindow::changeBackground(QAction* action) {
-    int index = action->data().toInt();
-
-    if (index == 0) {
-        setStyleSheet("background-color: rgba(0, 168, 219, 0.78);");
-        setPalette(QPalette()); // Сбрасываем палитру
-    } else {
-        QString imagePath = QString(":/MainWindow/resources/backgrounds/bg%1.jpg").arg(index);
-        QPixmap bg(imagePath);
-        if (!bg.isNull()) {
-            QPalette palette;
-            palette.setBrush(backgroundRole(), QBrush(bg.scaled(size(), Qt::KeepAspectRatioByExpanding)));
-            setPalette(palette);
-            setStyleSheet(""); // Сбрасываем стиль
-        } else {
-            qWarning() << "Failed to load background:" << imagePath;
-            setStyleSheet("background-color: rgba(0, 168, 219, 0.78);");
-        }
-    }
-
-    QSettings settings;
-    settings.setValue("background", index);
-    update();
-    repaint();
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event) {
