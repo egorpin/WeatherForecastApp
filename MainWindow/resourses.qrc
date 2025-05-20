@@ -27,5 +27,9 @@
 
     <!-- Стили -->
     <file>resources/styles/backgrounds.qss</file>
+    <file>icons/humidity.png<file>
+    <file>icons/wind.png<file>
+    <file>style.qcss<file>
+    <file>button.qcss<file>
 </qresource>
 </RCC>

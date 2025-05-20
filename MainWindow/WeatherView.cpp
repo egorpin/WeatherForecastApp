@@ -12,7 +12,6 @@
 #include <QTimer>
 #include <QRegularExpression>
 #include <QTabBar>
-
 WeatherView::WeatherView(QWidget *parent) : QWidget(parent) {
     api = new WeatherAPI(this);
 
@@ -96,6 +95,25 @@ void WeatherView::setupUI() {
             "--"
         ));
     }
+
+    // Hourly forecast tab
+    hourlyForecast = new QScrollArea();
+    hourlyForecast->setWidgetResizable(true);
+    QWidget *hourlyContent = new QWidget();
+    QVBoxLayout *hourlyLayout = new QVBoxLayout(hourlyContent);
+    hourlyLayout->setContentsMargins(5, 5, 5, 5);
+    hourlyLayout->setSpacing(10);
+
+    for(int i = 0; i < 24; i += 3) {
+        hourlyLayout->addWidget(createHourlyWidget(
+            QString("%1:00").arg(i, 2, 10, QChar('0')),
+            "",
+            "--°C",
+            "--"
+        ));
+    }
+
+    hourlyForecast->setWidget(hourlyContent);
 
     forecastTabs->addTab(dailyForecast, "На 5 дней");
     forecastTabs->tabBar()->setHidden(true);
@@ -235,6 +253,7 @@ void WeatherView::displayWeather(const WeatherObject &data) {
         delete child;
     }
 
+    // Add new details
     detailsLayout->addWidget(createDetailWidget(":MainWindow/icons/humidity.png",
         QString("%5%").arg(data.humidity), "Влажность"));
 
@@ -266,6 +285,7 @@ void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast) {
             ));
         }
     }
+
 }
 
 void WeatherView::showErrorMessage(const QString &message) {

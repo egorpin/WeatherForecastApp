@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include "WeatherView.hpp"
+#include "button.qcss"
 
 #include "style.qcss"
 
@@ -69,7 +70,7 @@ private:
     QWidget *titleBar;
     QLabel *titleIcon;
     QLabel *titleLabel;
-    QLabel *backgroundLabel;  
+    QLabel *backgroundLabel;
     QToolButton *minimizeButton;
     QToolButton *maximizeButton;
     QToolButton *closeButton;
