@@ -1,33 +1,118 @@
-const QString windowButtonStyle = R"(
-    QToolButton {
-        border: none;
-        background: transparent;
-        padding: 4px;
-        border-radius: 8px;
-        opacity: 0.9;
-    }
-    QToolButton:hover {
-        background: rgba(255, 255, 255, 0.2);
-        opacity: 1.0;
-    }
-    QToolButton:pressed {
-        background: rgba(255, 255, 255, 0.3);
-    }
-)";
+const QString appStyle = R"(
 
-const QString closeButtonStyle = R"(
-    QToolButton {
+        QWidget {
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        QLineEdit {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 8px 15px;
+            font-size: 14px;
+            color: white;
+        }
+
+        QLineEdit:focus {
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        QPushButton {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 8px 15px;
+            font-size: 14px;
+            color: white;
+        }
+
+        QPushButton:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        QPushButton:pressed {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        QWidget#currentWeatherWidget {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+        }
+
+        QLabel#cityLabel {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        QLabel#dateLabel {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        QLabel#tempLabel {
+            font-size: 72px;
+            font-weight: lighter;
+        }
+
+        QLabel#descLabel {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        QTabWidget::pane {
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        QTabBar::tab {
+            background: transparent;
+            padding: 8px 15px;
+            color: white;
+            border: none;
+            font-size: 14px;
+        }
+
+        QTabBar::tab:selected {
+            color: white;
+            border-bottom: 2px solid white;
+        }
+
+        QTabBar::tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        QScrollArea {
+            border: none;
+            background: transparent;
+        }
+
+        QScrollBar:vertical {
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            width: 8px;
+            margin: 0;
+        }
+
+        QScrollBar::handle:vertical {
+            background: rgba(255, 255, 255, 0.3);
+            min-height: 20px;
+            border-radius: 4px;
+        }
+
+        QWidget#forecastDayWidget, QWidget#hourlyWidget {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        QWidget#forecastDayWidget:hover, QWidget#hourlyWidget:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        QTableWidget {
         border: none;
-        background: transparent;
-        padding: 4px;
-        border-radius: 8px;
-        opacity: 0.9;
-    }
-    QToolButton:hover {
-        background: #e81123;
-        opacity: 1.0;
-    }
-    QToolButton:pressed {
-        background: #f1707a;
+        background: white;
+        alternate-background-color: #f5f5f5;
     }
 )";

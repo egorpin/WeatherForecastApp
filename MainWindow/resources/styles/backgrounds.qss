@@ -1,34 +1,56 @@
-MainWindow {
+QMainWindow {
     background-color: rgba(0, 168, 219, 0.78);
-    background-position: center;
-    background-repeat: no-repeat;
-    background: cover;
-    backdrop-filter: blur(5px);
     transition: background 0.5s ease;
 }
 
-QLabel {
-    background-color: rgba(0, 0, 0, 0.3);
-    color: white;
-    border-radius: 4px;
-    padding: 2px;
+#titleBar {
+    background-color: rgb(28, 41, 80);
+    border: none;
+}
+
+#minimizeButton, #maximizeButton {
+    background: transparent;
+    border: none;
+}
+
+#closeButton {
+    background: transparent;
+    border: none;
+}
+
+#minimizeButton:hover, #maximizeButton:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#closeButton:hover {
+    background-color: #e81123;
 }
 
 QLineEdit {
-    background-color: rgba(255, 255, 255, 0.8);
     color: black;
+    background-color: rgba(255, 255, 255, 177);
+    border: 1px solid rgba(255, 255, 255, 50);
     border-radius: 4px;
-    padding: 5px;
+    padding: 8px;
+    font-size: 14px;
 }
 
 QPushButton {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    border-radius: 4px;
-    padding: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: none;
+    background-color: rgba(255, 255, 255, 100);
+    border-radius: 20px;
 }
 
 QPushButton:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 150);
+}
+
+WeatherView {
+    background: transparent;
+}
+
+#dayWidget {
+    background-color: rgba(255, 255, 255, 50);
+    border-radius: 10px;
+    padding: 10px;
 }
