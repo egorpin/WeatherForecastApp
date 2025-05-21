@@ -72,7 +72,7 @@ void MainWindow::setupTitleBar() {
     if(!appPixmap.isNull()) {
         titleIcon->setPixmap(appPixmap.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     } else {
-        qDebug() << "Юра епта ну где значок приложения";
+        qDebug() << "Андрей, ну где значок приложения";
         titleIcon->setText("App");
     }
     titleLayout->addWidget(titleIcon);
@@ -107,7 +107,7 @@ void MainWindow::setupTitleBar() {
             maximizeButton->setIcon(QIcon(":/MainWindow/icons/restore.png"));
             maximizeButton->setToolTip("Восстановить");
         }
-        update(); // Принудительная перерисовка
+        update();
     });
 
     closeButton = new QToolButton(titleBar);
@@ -163,7 +163,6 @@ void MainWindow::setBackgroundImage(const QString &imagePath) {
         setPalette(palette);
 
     } else {
-        qWarning() << "Failed to load background image:" << imagePath;
         setStyleSheet("background-color: rgba(0, 168, 219, 0.78);");
     }
 }

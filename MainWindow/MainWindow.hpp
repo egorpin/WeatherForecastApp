@@ -62,8 +62,6 @@ private:
     QPoint m_windowStartPosition;
     QFlags<Qt::Edge> m_resizeEdge;
     QRect m_normalGeometry;
-    // QMenu* backgroundMenu;
-    // QActionGroup* bgActionGroup;
     QString windowButtonStyle;
     QString closeButtonStyle;
     QWidget *titleBar;

@@ -31,7 +31,6 @@ void WeatherView::setupUI() {
 
     QVBoxLayout *rightLayout = new QVBoxLayout(this);
 
-    // Search bar
     QHBoxLayout *searchLayout = new QHBoxLayout();
     searchLayout->setSpacing(10);
 
@@ -52,7 +51,6 @@ void WeatherView::setupUI() {
     rightLayout->addLayout(searchLayout);
     mainLayout->addLayout(rightLayout);
 
-    // Current weather
     QWidget *currentWeatherWidget = new QWidget(this);
     QVBoxLayout *currentLayout = new QVBoxLayout(currentWeatherWidget);
     currentLayout->setContentsMargins(20, 20, 20, 20);
@@ -81,12 +79,9 @@ void WeatherView::setupUI() {
     currentLayout->addLayout(detailsLayout);
 
     rightLayout->addWidget(currentWeatherWidget);
-    //mainLayout->addWidget(currentWeatherWidget);
 
-    // Forecast tabs
     forecastTabs = new QTabWidget(this);
 
-    // Daily forecast tab
     dailyForecast = new QWidget();
     QVBoxLayout *dailyLayout = new QVBoxLayout(dailyForecast);
     dailyLayout->setContentsMargins(5, 5, 5, 5);
@@ -244,11 +239,6 @@ void WeatherView::displayWeather(const WeatherObject &data) {
 
     detailsLayout->addWidget(createDetailWidget(":MainWindow/icons/wind.png",
         QString("%1 м/с").arg(data.windSpeed), "Ветер"));
-
-    // .arg(data.temp)
-    // .arg(data.humidity)
-    // .arg(data.windSpeed)
-    // .arg(data.description);
 }
 
 void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast) {

@@ -41,14 +41,6 @@ qt_add_resources(WeatherApp "icons"
         MainWindow/icons/wind.png
 )
 
-# qt_add_resources(WeatherApp "backgrounds"
-#     PREFIX "/"
-#     FILES
-#         MainWindow/resources/backgrounds/bg1.jpg
-#         MainWindow/resources/backgrounds/bg2.jpg
-#         MainWindow/resources/backgrounds/bg3.jpg
-# )
-
 qt_add_resources(WeatherApp "images"
     PREFIX "/"
     FILES
@@ -64,12 +56,6 @@ qt_add_resources(WeatherApp "images"
         MainWindow/resources/backgrounds/mist.jpg
         MainWindow/resources/backgrounds/default.jpg
 )
-
-# qt_add_resources(WeatherApp "styles"
-#     PREFIX "/"
-#     FILES
-#         MainWindow/resources/styles/backgrounds.qss
-# )
 
 target_link_libraries(WeatherApp PRIVATE
     Qt6::Widgets

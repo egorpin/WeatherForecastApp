@@ -1,6 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/">
-    <!-- Иконки приложения -->
     <file>icons/app_icon.png</file>
     <file>icons/search_new.png</file>
     <file>icons/minimize.png</file>
@@ -12,7 +11,6 @@
     <file>style.qcss<file>
     <file>button.qcss<file>
 
-    <!-- Фоновые изображения для погоды -->
     <file>resources/backgrounds/clear.jpg</file>
     <file>resources/backgrounds/few_clouds.jpg</file>
     <file>resources/backgrounds/scattered_clouds.jpg</file>
@@ -25,7 +23,6 @@
     <file>resources/backgrounds/mist.jpg</file>
     <file>resources/backgrounds/default.jpg</file>
 
-    <!-- Стили -->
     <file>resources/styles/backgrounds.qss</file>
 </qresource>
 </RCC>
