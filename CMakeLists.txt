@@ -9,7 +9,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network Gui Positioning)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network Gui)
 if(NOT Qt6_FOUND)
     message(FATAL_ERROR "Qt6 not found! Please install Qt6 development packages.")
 endif()
@@ -75,5 +75,4 @@ target_link_libraries(WeatherApp PRIVATE
     Qt6::Widgets
     Qt6::Network
     Qt6::Gui
-    Qt6::Positioning
 )

@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     backgroundLabel->setScaledContents(true);
     backgroundLabel->setGraphicsEffect(m_blurEffect);
-    m_blurEffect->setBlurRadius(15);
+    m_blurEffect->setBlurRadius(8);
     backgroundLabel->lower();
 
     setupTitleBar();

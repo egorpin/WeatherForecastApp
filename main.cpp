@@ -12,8 +12,6 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     app.setApplicationName("WeatherApp");
-    app.setApplicationVersion("1.0");
-    app.setOrganizationName("YourCompany");
 
     qDebug() << "Available resource paths:" << QDir(":/").entryList();
     qDebug() << "Styles available:" << QDir(":/styles/").entryList();
