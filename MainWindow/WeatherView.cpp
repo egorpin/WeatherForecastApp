@@ -72,7 +72,7 @@ void WeatherView::setupUI() {
     detailsLayout->setSpacing(20);
 
     currentLayout->addWidget(cityLabel);
-    currentLayout->addWidget(weatherIcon);
+    currentLayout->addWidget(weatherIcon, 0, Qt::AlignCenter);
     currentLayout->addWidget(tempLabel);
     currentLayout->addWidget(descLabel);
     currentLayout->addLayout(detailsLayout);
@@ -269,7 +269,7 @@ void WeatherView::displayForecast(const QVector<WeatherObject*>& forecast) {
 }
 
 void WeatherView::showErrorMessage(const QString &message) {
-    ErrorDialog dialog(message, this);
+    ErrorDialog dialog(message);
     dialog.exec();
 }
 

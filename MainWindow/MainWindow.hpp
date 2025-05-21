@@ -67,9 +67,10 @@ private:
     QString windowButtonStyle;
     QString closeButtonStyle;
     QWidget *titleBar;
+    QWidget *overlay;
     QLabel *titleIcon;
     QLabel *titleLabel;
-    QLabel *backgroundLabel;  
+    QLabel *backgroundLabel;
     QToolButton *minimizeButton;
     QToolButton *maximizeButton;
     QToolButton *closeButton;

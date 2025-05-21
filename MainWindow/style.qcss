@@ -101,12 +101,12 @@ const QString appStyle = R"(
             border-radius: 4px;
         }
 
-        QWidget#forecastDayWidget, QWidget#hourlyWidget {
+        QWidget#forecastDayWidget {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
         }
 
-        QWidget#forecastDayWidget:hover, QWidget#hourlyWidget:hover {
+        QWidget#forecastDayWidget:hover {
             background: rgba(255, 255, 255, 0.1);
         }
 

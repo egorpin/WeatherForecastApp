@@ -43,6 +43,12 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(titleBar);
     mainLayout->addWidget(view, 1);
 
+
+        overlay = new QWidget(centralWidget);
+
+        overlay->setStyleSheet("background-color: rgba(128, 128, 128, 150);");
+        overlay->lower();
+
     setCentralWidget(centralWidget);
     setWindowIcon(QIcon(":MainWindow/icons/app_icon.png"));
 
@@ -155,6 +161,7 @@ void MainWindow::setBackgroundImage(const QString &imagePath) {
         QPalette palette;
         palette.setBrush(backgroundRole(), QBrush(bg.scaled(size(), Qt::KeepAspectRatioByExpanding)));
         setPalette(palette);
+
     } else {
         qWarning() << "Failed to load background image:" << imagePath;
         setStyleSheet("background-color: rgba(0, 168, 219, 0.78);");
@@ -165,6 +172,8 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     QMainWindow::resizeEvent(event);
 
     QPixmap currentBg = palette().brush(backgroundRole()).texture();
+    overlay->setGeometry(0, 0, width(), height());
+
     if (!currentBg.isNull()) {
         QPalette palette;
         palette.setBrush(backgroundRole(),

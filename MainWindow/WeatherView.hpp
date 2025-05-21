@@ -66,7 +66,6 @@ private:
     // Forecast
     QTabWidget *forecastTabs;
     QWidget *dailyForecast;
-    QScrollArea *hourlyForecast;
 
     // Constants
     const QString humidityIconPath = ":/icons/humidity.png";
