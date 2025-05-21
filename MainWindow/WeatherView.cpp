@@ -25,9 +25,11 @@ WeatherView::WeatherView(QWidget *parent) : QWidget(parent) {
 }
 
 void WeatherView::setupUI() {
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->setContentsMargins(20, 20, 20, 20);
     mainLayout->setSpacing(20);
+
+    QVBoxLayout *rightLayout = new QVBoxLayout(this);
 
     // Search bar
     QHBoxLayout *searchLayout = new QHBoxLayout();
@@ -47,7 +49,8 @@ void WeatherView::setupUI() {
 
     searchLayout->addWidget(cityInput);
     searchLayout->addWidget(searchButton);
-    mainLayout->addLayout(searchLayout);
+    rightLayout->addLayout(searchLayout);
+    mainLayout->addLayout(rightLayout);
 
     // Current weather
     QWidget *currentWeatherWidget = new QWidget(this);
@@ -77,7 +80,8 @@ void WeatherView::setupUI() {
     currentLayout->addWidget(descLabel);
     currentLayout->addLayout(detailsLayout);
 
-    mainLayout->addWidget(currentWeatherWidget);
+    rightLayout->addWidget(currentWeatherWidget);
+    //mainLayout->addWidget(currentWeatherWidget);
 
     // Forecast tabs
     forecastTabs = new QTabWidget(this);
